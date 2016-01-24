@@ -1,0 +1,20 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+
+platforms:
+  - name: centos-7.1
+  - name: windows2012r2
+    driver:
+      box: windows2012r2
+      box_url: 'https://artifacts.schubergphilis.com/artifacts/vagrant/sbp_windows_2012_r2_20141211_1.box'
+      guest: windows
+
+suites:
+  - name: default
+    run_list:
+      - recipe[testcookbook::vagrant]
+      - recipe[COOKBOOK::default]
