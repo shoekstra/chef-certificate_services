@@ -11,17 +11,15 @@ require 'spec_helper'
 require_relative '../../../libraries/certificate_services_helper.rb'
 
 describe CertificateServices::Helper do
+  let(:shellout_options) { { environment: { 'LC_ALL' => 'en_US.UTF-8', 'LANGUAGE' => 'en_US.UTF-8', 'LANG' => 'en_US.UTF-8' } } }
+  let(:helper_class) { Class.new { include CertificateServices::Helper } }
 
   describe '#ca_configured?' do
     let(:shellout) { double(run_command: nil, error!: nil, stdout: '', stderr: double(empty?: true)) }
-    let(:helper_class) { Class.new { include CertificateServices::Helper } }
-
-    before {
-      Mixlib::ShellOut.stub(:new).and_return(shellout)
-    }
+    before { Mixlib::ShellOut.stub(:new).and_return(shellout) }
 
     it 'builds the correct command' do
-      expect(Mixlib::ShellOut).to receive(:new).with('certutil -ping', {:environment=>{"LC_ALL"=>"en_US.UTF-8", "LANGUAGE"=>"en_US.UTF-8", "LANG"=>"en_US.UTF-8"}})
+      expect(Mixlib::ShellOut).to receive(:new).with('certutil -ping', shellout_options)
       expect(shellout).to receive(:live_stream).and_return(nil)
       expect(shellout).to receive(:live_stream=).and_return(nil)
       expect(helper_class.new.ca_configured?).to be false
@@ -54,14 +52,10 @@ describe CertificateServices::Helper do
 
   describe '#ca_installed?' do
     let(:shellout) { double(run_command: nil, error!: nil, stdout: '', stderr: double(empty?: true)) }
-    let(:helper_class) { Class.new { include CertificateServices::Helper } }
-
-    before {
-      Mixlib::ShellOut.stub(:new).and_return(shellout)
-    }
+    before { Mixlib::ShellOut.stub(:new).and_return(shellout) }
 
     it 'builds the correct command' do
-      expect(Mixlib::ShellOut).to receive(:new).with('certutil -getconfig', {:environment=>{"LC_ALL"=>"en_US.UTF-8", "LANGUAGE"=>"en_US.UTF-8", "LANG"=>"en_US.UTF-8"}})
+      expect(Mixlib::ShellOut).to receive(:new).with('certutil -getconfig', shellout_options)
       expect(shellout).to receive(:live_stream).and_return(nil)
       expect(shellout).to receive(:live_stream=).and_return(nil)
       expect(helper_class.new.ca_installed?).to be false
@@ -94,14 +88,10 @@ describe CertificateServices::Helper do
 
   describe '#ca_name' do
     let(:shellout) { double(run_command: nil, error!: nil, stdout: '', stderr: double(empty?: true)) }
-    let(:helper_class) { Class.new { include CertificateServices::Helper } }
-
-    before {
-      Mixlib::ShellOut.stub(:new).and_return(shellout)
-    }
+    before { Mixlib::ShellOut.stub(:new).and_return(shellout) }
 
     it 'builds the correct command' do
-      expect(Mixlib::ShellOut).to receive(:new).with('certutil -getconfig', {:environment=>{"LC_ALL"=>"en_US.UTF-8", "LANGUAGE"=>"en_US.UTF-8", "LANG"=>"en_US.UTF-8"}})
+      expect(Mixlib::ShellOut).to receive(:new).with('certutil -getconfig', shellout_options)
       expect(shellout).to receive(:live_stream).and_return(nil)
       expect(shellout).to receive(:live_stream=).and_return(nil)
       expect(helper_class.new.ca_name).to be nil
@@ -141,9 +131,15 @@ describe CertificateServices::Helper do
       end
     end
 
-    context 'when argument "contoso.com" is given' do
-      it 'returns domain DN "DC=CONTOSO,DC=COM"' do
-        expect(domain_dn('contoso.com')).to eq('DC=CONTOSO,DC=COM')
+    context 'when lowercase argument "contoso.com" is given' do
+      it 'returns domain DN "DC=contoso,DC=com"' do
+        expect(domain_dn('contoso.com')).to eq('DC=contoso,DC=com')
+      end
+    end
+
+    context 'when uppercase argument "CONTOSO.COM" is given' do
+      it 'returns domain DN "DC=contoso,DC=com"' do
+        expect(domain_dn('CONTOSO.COM')).to eq('DC=contoso,DC=com')
       end
     end
   end

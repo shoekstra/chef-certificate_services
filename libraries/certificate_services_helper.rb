@@ -39,7 +39,7 @@ module CertificateServices
     # Return domain distinguished name
     #
     def domain_dn(domain)
-      domain.split('.').map! { |k| "DC=#{k}" }.join(',').upcase
+      domain.split('.').map! { |k| "DC=#{k.downcase}" }.join(',')
     end
 
     #

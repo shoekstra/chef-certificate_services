@@ -1,0 +1,30 @@
+[Version]
+Signature="$Windows NT$"
+
+<%- if @policy -%>
+[PolicyStatementExtension]
+Policies=<%= @policy_name.join(',') %>
+
+<%- @policy.each do |p| -%>
+<%- p.each do |e| -%>
+[<%= e.first %>]
+OID=<%= e.last['oid'] %>
+Notice="<%= e.last['notice'] %>"
+URL=<%= e.last['url'] %>
+
+<%- end -%>
+<%- end -%>
+<%- end -%>
+[Certsrv_Server]
+RenewalKeyLength=<%= @renewal_key_length %>
+RenewalValidityPeriod=<%= @renewal_validity_period.downcase.capitalize %>
+RenewalValidityPeriodUnits=<%= @renewal_validity_period_units %>
+<% if @crl_period %>CRLPeriod=<%= @crl_period.downcase.capitalize %><% end -%>
+<% if @crl_period_units %>CRLPeriodUnits=<%= @crl_period_units %><% end -%>
+<% if @crl_delta_period %>CRLDeltaPeriod=<%= @crl_delta_period.downcase.capitalize %><% end -%>
+<% if @crl_delta_period_units %>CRLDeltaPeriodUnits=<%= @crl_delta_period_units %><% end -%>
+<% if @clock_skew_minutes %>ClockSkewMinutes=<%= @clock_skew_minutes %><% end -%>
+LoadDefaultTemplates=<% if @load_default_templates %>1<% else %>0<% end -%>
+AlternateSignatureAlgorithm=<% if @alternate_signature_algorithm %>1<% else %>0<% end -%>
+ForceUTF8=<% if @force_utf8 %>1<% else %>0<% end -%>
+EnableKeyCounting=<% if @enable_key_counting %>1<% else %>0<% end -%>

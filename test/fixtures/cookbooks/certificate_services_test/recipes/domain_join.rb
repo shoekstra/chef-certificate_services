@@ -1,0 +1,24 @@
+#
+# Cookbook Name:: certificate_services_test
+# Recipe:: domain_join
+#
+# Copyright (C) 2016 Schuberg Philis
+#
+# Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
+#
+
+powershell_script 'Set DNS resolver' do
+  code 'Get-DnsClient | ?{$_.InterfaceAlias -eq "Ethernet 2"} | Set-DnsClientServerAddress -ServerAddresses ("192.168.33.10")'
+  not_if '(Get-DnsClientServerAddress | ?{$_.InterfaceAlias -eq "Ethernet 2" -and $_.Address -ne ""}).ServerAddresses -eq "192.168.10.10")'
+end
+
+windows_ad_domain 'CONTOSO' do
+  action :join
+  domain_pass 'Passw0rd!'
+  domain_user 'Administrator'
+  restart false
+end
+
+ohai 'reload' do
+  action :reload
+end
