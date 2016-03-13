@@ -105,3 +105,10 @@ default['certificate_services']['crl_distribution_point']['cps']['virtual_dir_pa
 
 # Default values for Certificate Enrollment Web Services
 
+# Default values for PKI PowerShell Module (http://pspki.codeplex.com)
+
+default['certificate_services']['pscx']['package_name']                                         = 'PowerShell Community Extensions 3.2.0'
+default['certificate_services']['pscx']['source_url']                                           = 'http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=pscx&DownloadId=923562&FileTime=130585918034470000&Build=21031'
+default['certificate_services']['pspki']['package_name']                                        = 'PowerShell PKI Module'
+default['certificate_services']['pspki']['source_name']                                         = 'http://download-codeplex.sec.s-msft.com/Download/Release?ProjectName=pspki&DownloadId=1440723&FileTime=130716062844400000&Build=21031'
+
