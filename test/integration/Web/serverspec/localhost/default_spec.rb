@@ -78,5 +78,39 @@ describe 'A Web Server' do
   end
 
   describe 'acting as an Online Responder' do
+    describe 'has IIS installed' do
+      %w(Web-Mgmt-Tools Web-WebServer).each do |feature_name|
+        describe windows_feature(feature_name) do
+          it { should be_installed.by('powershell') }
+        end
+      end
+
+      %w(W3SVC WMSvc).each do |service_name|
+        describe service(service_name) do
+          it { should be_installed }
+          it { should be_running }
+        end
+      end
+
+      describe windows_registry_key('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WebManagement\Server') do
+        it { should have_property_value('EnableRemoteManagement', :type_string, '1') }
+      end
+    end
+
+    describe 'has OCSP installed' do
+      %w(ADCS-Online-Cert RSAT-Online-Responder).each do |feature_name|
+        describe windows_feature(feature_name) do
+          it { should be_installed.by('powershell') }
+        end
+      end
+
+      describe iis_app_pool('OCSPISAPIAppPool') do
+        it { should exist }
+      end
+
+      describe iis_website('Default Web Site') do
+        it { should have_site_application('ocsp').with_pool('OCSPISAPIAppPool').with_physical_path('C:\\Windows\\SystemData\\ocsp') }
+      end
+    end
   end
 end
