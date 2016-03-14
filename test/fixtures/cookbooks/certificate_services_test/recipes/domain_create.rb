@@ -22,5 +22,5 @@ end
 
 powershell_script 'Create A record for pki.contoso.com' do
   code 'Get-DnsServerZone contoso.com | Add-DnsServerResourceRecordA -Name "pki" -IPv4Address 192.168.33.13 '
-  not_if 'if (Get-DnsServerResourceRecord -ZoneName contoso.com -Name pki -ErrorAction SilentlyContinue) { write-host true }'
+  not_if 'if (Get-DnsServerResourceRecord -ZoneName contoso.com -Name pki -ErrorAction SilentlyContinue) { $true } else { $false }'
 end
