@@ -8,21 +8,8 @@ RSpec.configure do |config|
   config.version = '2012R2'
 end
 
-shared_examples_for 'EnterpriseSubordinateCA not installed and not configured' do
+shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configured' do
   let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
-  let(:command_install_adcs) do
-   [
-      'Install-AdcsCertificationAuthority',
-      '-Force',
-      '-OverwriteExistingKey',
-      "-CACommonName 'SUBCA-Issuing-CA'",
-      '-CAType EnterpriseSubordinateCA',
-      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
-      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
-      "-KeyLength #{attributes[:key_length]}",
-    ].join(' ')
-  end
 
   let(:registry_key_values_ca) do
     arr = []
@@ -141,21 +128,8 @@ shared_examples_for 'EnterpriseSubordinateCA not installed and not configured' d
   end
 end
 
-shared_examples_for 'EnterpriseSubordinateCA installed and not configured' do
+shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured' do
   let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
-  let(:command_install_adcs) do
-    [
-      'Install-AdcsCertificationAuthority',
-      '-Force',
-      '-OverwriteExistingKey',
-      "-CACommonName 'SUBCA-Issuing-CA'",
-      '-CAType EnterpriseSubordinateCA',
-      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
-      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
-      "-KeyLength #{attributes[:key_length]}",
-    ].join(' ')
-  end
 
   let(:registry_key_values_ca) do
     arr = []
@@ -274,21 +248,8 @@ shared_examples_for 'EnterpriseSubordinateCA installed and not configured' do
   end
 end
 
-shared_examples_for 'EnterpriseSubordinateCA installed and configured' do
+shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
   let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
-  let(:command_install_adcs) do
-    [
-      'Install-AdcsCertificationAuthority',
-      '-Force',
-      '-OverwriteExistingKey',
-      "-CACommonName 'SUBCA-Issuing-CA'",
-      '-CAType EnterpriseSubordinateCA',
-      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
-      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
-      "-KeyLength #{attributes[:key_length]}",
-    ].join(' ')
-  end
 
   let(:registry_key_values_ca) do
     arr = []
@@ -405,23 +366,8 @@ shared_examples_for 'EnterpriseSubordinateCA installed and configured' do
   end
 end
 
-shared_examples_for 'StandaloneRootCA not installed and not configured' do
+shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
   let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
-  let(:command_install_adcs) do
-    [
-      'Install-AdcsCertificationAuthority',
-      '-Force',
-      '-OverwriteExistingKey',
-      "-CACommonName 'ROOTCA-CA'",
-      "-CAType StandaloneRootCA",
-      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
-      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
-      "-KeyLength #{attributes[:key_length]}",
-      "-ValidityPeriod #{attributes[:validity_period]}",
-      "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
-    ].join(' ')
-  end
 
   let(:registry_key_values_ca) do
     arr = []
@@ -577,30 +523,11 @@ shared_examples_for 'StandaloneRootCA not installed and not configured' do
       expect(chef_run.powershell_script('Generate new CRL')).to do_nothing
       expect(chef_run.powershell_script('Generate new CRL')).to subscribe_to('windows_service[CertSvc]')
     end
-
-    it 'should process any outstanding .req files' do
-      expect(chef_run).to run_ruby_block('Process outstanding requests')
-    end
   end
 end
 
-shared_examples_for 'StandaloneRootCA installed and configured' do
+shared_examples_for 'StandaloneRootCA is installed and is configured' do
   let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
-  let(:command_install_adcs) do
-    [
-      'Install-AdcsCertificationAuthority',
-      '-Force',
-      '-OverwriteExistingKey',
-      "-CACommonName 'ROOTCA-CA'",
-      "-CAType StandaloneRootCA",
-      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
-      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
-      "-KeyLength #{attributes[:key_length]}",
-      "-ValidityPeriod #{attributes[:validity_period]}",
-      "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
-    ].join(' ')
-  end
 
   let(:registry_key_values_ca) do
     arr = []
@@ -715,10 +642,6 @@ shared_examples_for 'StandaloneRootCA installed and configured' do
     it 'should generate a new CRL when the service is restarted' do
       expect(chef_run.powershell_script('Generate new CRL')).to do_nothing
       expect(chef_run.powershell_script('Generate new CRL')).to subscribe_to('windows_service[CertSvc]')
-    end
-
-    it 'should process any outstanding .req files' do
-      expect(chef_run).to run_ruby_block('Process outstanding requests')
     end
   end
 end

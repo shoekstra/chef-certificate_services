@@ -45,6 +45,22 @@ describe 'certificate_services::standalone_root_ca' do
     EOF
   end
 
+  let(:command_install_adcs) do
+    command = [
+      'Install-AdcsCertificationAuthority',
+      '-Force',
+      '-OverwriteExistingKey',
+      "-CAType StandaloneRootCA",
+      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
+      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
+      "-KeyLength #{attributes[:key_length]}",
+      "-ValidityPeriod #{attributes[:validity_period]}",
+      "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
+    ]
+    command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
+    command.join(' ')
+  end
+
   let(:default_attributes) do
     {
       # aia_url: nil,
@@ -96,24 +112,18 @@ describe 'certificate_services::standalone_root_ca' do
   describe 'when all attributes are default' do
     let(:attributes) { default_attributes }
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'StandaloneRootCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'StandaloneRootCA installed and configured'
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
     end
   end
 
@@ -132,26 +142,19 @@ describe 'certificate_services::standalone_root_ca' do
       ].join('; ')
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8.crl'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8.crl'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'StandaloneRootCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8.crl'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'StandaloneRootCA installed and configured'
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
     end
   end
 
@@ -196,30 +199,21 @@ describe 'certificate_services::standalone_root_ca' do
       EOF
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'StandaloneRootCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'StandaloneRootCA installed and configured'
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
     end
   end
 
@@ -274,88 +268,43 @@ describe 'certificate_services::standalone_root_ca' do
       EOF
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
-          node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
+        node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
+        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'StandaloneRootCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
-          node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'StandaloneRootCA installed and configured'
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
     end
   end
 
   describe 'when "windows_domain" attribute is set to "contoso.com"' do
     let(:attributes) { default_attributes.merge!(windows_domain: 'contoso.com') }
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['windows_domain'] = 'contoso.com'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['windows_domain'] = 'contoso.com'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'StandaloneRootCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['windows_domain'] = 'contoso.com'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'StandaloneRootCA installed and configured'
-    end
-  end
-
-  describe 'when "windows_domain" attribute is set to "contoso.com"' do
-    let(:attributes) { default_attributes.merge(windows_domain: 'contoso.com') }
-
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['windows_domain'] = 'contoso.com'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'StandaloneRootCA not installed and not configured'
-    end
-
-    describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['hostname'] = 'ROOTCA'
-          node.set['certificate_services']['standalone_root_ca']['windows_domain'] = 'contoso.com'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'StandaloneRootCA installed and configured'
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
     end
   end
 end

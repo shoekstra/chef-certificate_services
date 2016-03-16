@@ -7,7 +7,6 @@
 # Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
 #
 
-require 'digest'
 require 'spec_helper'
 
 describe 'certificate_services::enterprise_subordinate_ca' do
@@ -23,6 +22,20 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
       'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
     ].join('; ')
+  end
+
+  let(:command_install_adcs) do
+    command = [
+      'Install-AdcsCertificationAuthority',
+      '-Force',
+      '-OverwriteExistingKey',
+      '-CAType EnterpriseSubordinateCA',
+      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
+      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
+      "-KeyLength #{attributes[:key_length]}",
+    ]
+    command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
+    command.join(' ')
   end
 
   let(:content_capolicy) do <<-EOF.gsub(/^ {6}/, '')
@@ -97,40 +110,24 @@ describe 'certificate_services::enterprise_subordinate_ca' do
   describe 'when all attributes are default' do
     let(:attributes) { default_attributes }
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'EnterpriseSubordinateCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'EnterpriseSubordinateCA installed and not configured'
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'EnterpriseSubordinateCA installed and configured'
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
     end
   end
 
@@ -147,30 +144,25 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       ].join('; ')
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3%4.crt'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3%4.crt'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'EnterpriseSubordinateCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3%4.crt'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'EnterpriseSubordinateCA installed and configured'
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
     end
   end
 
@@ -189,30 +181,25 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       ].join('; ')
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8%9.crl'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8%9.crl'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'EnterpriseSubordinateCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8%9.crl'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'EnterpriseSubordinateCA installed and configured'
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
     end
   end
 
@@ -229,30 +216,25 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       ].join('; ')
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['ocsp_url'] = 'http://pki.contoso.com/ocsp'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['ocsp_url'] = 'http://pki.contoso.com/ocsp'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'EnterpriseSubordinateCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['ocsp_url'] = 'http://pki.contoso.com/ocsp'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'EnterpriseSubordinateCA installed and configured'
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
     end
   end
 
@@ -297,34 +279,27 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       EOF
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'EnterpriseSubordinateCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'EnterpriseSubordinateCA installed and configured'
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
     end
   end
 
@@ -379,40 +354,30 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       EOF
     end
 
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+      end.converge(described_recipe)
+    end
 
-      it_behaves_like 'EnterpriseSubordinateCA not installed and not configured'
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
-      let(:chef_run) do
-        ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-          node.automatic['domain'] = 'CONTOSO'
-          node.automatic['fqdn'] = 'SUBCA.contoso.com'
-          node.automatic['hostname'] = 'SUBCA'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-          node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
-        end.converge(described_recipe)
-      end
-
-      it_behaves_like 'EnterpriseSubordinateCA installed and configured'
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
     end
   end
 end
