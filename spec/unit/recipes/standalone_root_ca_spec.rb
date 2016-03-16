@@ -158,6 +158,27 @@ describe 'certificate_services::standalone_root_ca' do
     end
   end
 
+  describe 'when "common_name" attribute is set to "STANDALONE_ROOTCA"' do
+    let(:attributes) do
+      default_attributes.merge(common_name: 'STANDALONE_ROOTCA')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['common_name'] = 'STANDALONE_ROOTCA'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
+    end
+  end
+
   describe 'when "policy" attribute contains a single policy' do
     let(:attributes) do
       default_attributes.merge(

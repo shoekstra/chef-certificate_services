@@ -203,6 +203,33 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     end
   end
 
+  describe 'when "common_name" attribute is set to "ENTERPRISE_ISSUINGCA"' do
+    let(:attributes) do
+      default_attributes.merge(common_name: 'ENTERPRISE_ISSUINGCA')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['common_name'] = 'ENTERPRISE_ISSUINGCA'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
   describe 'when "ocsp_url" attribute is set to "http://pki.contoso.com/ocsp"' do
     let(:attributes) do
       # default_attributes.merge(ocsp_url: 'http://pki.contoso.com/ocsp')

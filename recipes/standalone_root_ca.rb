@@ -18,7 +18,6 @@ caconfig = node['certificate_services']['standalone_root_ca'] if node['certifica
 certificate_services_install 'StandaloneRootCA' do
   # allow_administrator_interaction caconfig['allow_administrator_interaction'] if caconfig['allow_administrator_interaction']
   # alternate_signature_algorithm caconfig['alternate_signature_algorithm'] if caconfig['alternate_signature_algorithm']
-  # common_name caconfig['common_name'] if caconfig['common_name']
   # crl_delta_overlap_period caconfig['crl_delta_overlap_period'] if caconfig['crl_delta_overlap_period']
   # crl_delta_overlap_units caconfig['crl_delta_overlap_units'] if caconfig['crl_delta_overlap_units']
   # crypto_provider caconfig['crypto_provider'] if caconfig['crypto_provider']
@@ -35,6 +34,7 @@ certificate_services_install 'StandaloneRootCA' do
   alternate_signature_algorithm caconfig['alternate_signature_algorithm'] if caconfig['alternate_signature_algorithm']
   caconfig_dir caconfig['caconfig_dir'] if caconfig['caconfig_dir']
   clock_skew_minutes caconfig['clock_skew_minutes'] if caconfig['clock_skew_minutes']
+  common_name caconfig['common_name'] if caconfig['common_name']
   crl_delta_period caconfig['crl_delta_period'] if caconfig['crl_delta_period']
   crl_delta_period_units caconfig['crl_delta_period_units'] if caconfig['crl_delta_period_units']
   crl_overlap_period caconfig['crl_overlap_period'] if caconfig['crl_overlap_period']

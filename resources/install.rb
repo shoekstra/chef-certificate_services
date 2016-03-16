@@ -118,14 +118,10 @@ action :create do
     #
     # Configure the CA
     #
-    ca_attr = node['certificate_services']['standalone_root_ca']
-    common_name = ca_attr['common_name'].nil? ? "#{node['hostname']}-CA" : ca_attr['common_name']
-
     ruby_block 'Install ADCS Certification Authority' do
       block do
         config_ca_cmd = [
           'Install-AdcsCertificationAuthority -Force -OverwriteExistingKey',
-          "-CACommonName '#{common_name}'",
           "-CAType #{new_resource.type}",
           "-CryptoProviderName '#{new_resource.crypto_provider}'",
           "-HashAlgorithmName #{new_resource.hash_algorithm}",
@@ -133,8 +129,8 @@ action :create do
           "-ValidityPeriod #{new_resource.validity_period}",
           "-ValidityPeriodUnits #{new_resource.validity_period_units}"
         ]
+        config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
 
-        Chef::Log.warn("config_ca_cmd = #{config_ca_cmd.join(' ')}")
         powershell_out!(config_ca_cmd.join(' '))
       end
       not_if { ca_installed? }
@@ -248,9 +244,6 @@ action :create do
     #
     # Configure the CA
     #
-    ca_attr = node['certificate_services']['enterprise_subordinate_ca']
-    common_name = ca_attr['common_name'].nil? ? "#{node['hostname']}-Issuing-CA" : ca_attr['common_name']
-
     powershell_out_options = {
       user: new_resource.domain_user,
       password: new_resource.domain_pass,
@@ -261,12 +254,12 @@ action :create do
       block do
         config_ca_cmd = [
           'Install-AdcsCertificationAuthority -Force -OverwriteExistingKey',
-          "-CACommonName '#{common_name}'",
           "-CAType #{new_resource.type}",
           "-CryptoProviderName '#{new_resource.crypto_provider}'",
           "-HashAlgorithmName #{new_resource.hash_algorithm}",
           "-KeyLength #{new_resource.key_length}"
         ]
+        config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
 
         powershell_out!(config_ca_cmd.join(' '), powershell_out_options)
       end
@@ -305,7 +298,7 @@ action :create do
       end
 
       ruby_block "Install #{win_friendly_install_cert_file} certificate" do
-        block { shell_out!("certutil -installCert #{win_friendly_install_cert_file}", shell_out_options) }
+        block { shell_out!("certutil -installCert #{win_friendly_install_cert_file}", powershell_out_options) }
         not_if { ca_configured? }
         notifies :restart, 'windows_service[CertSvc]', :immediately
         notifies :delete, "file[#{win_friendly_install_cert_file}]"

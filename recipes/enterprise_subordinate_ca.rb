@@ -17,7 +17,6 @@ caconfig = node['certificate_services']['enterprise_subordinate_ca'] if node['ce
 #
 certificate_services_install 'EnterpriseSubordinateCA' do
   # allow_administrator_interaction caconfig['allow_administrator_interaction'] if caconfig['allow_administrator_interaction']
-  # common_name caconfig['common_name'] if caconfig['common_name']
   # crl_delta_overlap_period caconfig['crl_delta_overlap_period'] if caconfig['crl_delta_overlap_period']
   # crl_delta_overlap_units caconfig['crl_delta_overlap_units'] if caconfig['crl_delta_overlap_units']
   # crl_overlap_period caconfig['crl_overlap_period'] if caconfig['crl_overlap_period']
@@ -35,6 +34,7 @@ certificate_services_install 'EnterpriseSubordinateCA' do
   alternate_signature_algorithm caconfig['alternate_signature_algorithm'] if caconfig['alternate_signature_algorithm']
   caconfig_dir caconfig['caconfig_dir'] if caconfig['caconfig_dir']
   clock_skew_minutes caconfig['clock_skew_minutes'] if caconfig['clock_skew_minutes']
+  common_name caconfig['common_name'] if caconfig['common_name']
   crl_delta_period caconfig['crl_delta_period'] if caconfig['crl_delta_period']
   crl_delta_period_units caconfig['crl_delta_period_units'] if caconfig['crl_delta_period_units']
   crl_period caconfig['crl_period'] if caconfig['crl_period']
