@@ -193,36 +193,6 @@ action :create do
     #   returns [0, 1]
     #   action :run
     # end
-
-    #
-    # At this point the initial deployment is done, no future steps are needed to configure the offline root
-    # CA; once the subordinate certificates have been signed the offline root can be powered off.
-    #
-    # Look for any .req files in C:\ from subordinate CAs and sign them
-    #
-    ruby_block 'Process outstanding requests' do
-      block do
-        ca = node['hostname'] + '\\' + common_name
-        Dir.glob('C:/*.req').each do |request|
-          Chef::Log.info("RUNNING: certreq -Submit -Config \"#{ca}\" \"#{request}\"")
-          submit = Mixlib::ShellOut.new("certreq -Submit -Config \"#{ca}\" \"#{request}\"").run_command
-          submit.error!
-
-          request_id = submit.stdout.split(/\r\n/).grep(/RequestId/).first.gsub('RequestId: ', '')
-
-          Chef::Log.info("RUNNING: certutil -Resubmit #{request_id}")
-          resubmit = Mixlib::ShellOut.new("certutil -Resubmit #{request_id}").run_command
-          resubmit.error!
-
-          Chef::Log.info("RUNNING: certreq -Retrieve -Config \"#{ca}\" #{request_id} \"#{request.gsub('req', 'crt')}\"")
-          retrieve = Mixlib::ShellOut.new("certreq -Retrieve -f -Config \"#{ca}\" #{request_id} \"#{request.gsub('req', 'crt')}\"").run_command
-          retrieve.error!
-
-          Chef::Log.info("Signed awaiting request \"#{request}\".")
-          Chef::Log.info("Deleted signing request \"#{request}\".") if ::File.delete(request)
-        end
-      end
-    end
   else
     #
     # Cookbook Name:: sbp_certificate_services

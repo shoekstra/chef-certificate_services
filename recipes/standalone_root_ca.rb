@@ -100,4 +100,4 @@ end
 # At this point the initial deployment is done, no future steps are needed to configure the offline root
 # CA; once the subordinate certificates have been signed the offline root can be powered off.
 #
-# certificate_services_sign_request 'C:/*.req'
+certificate_services_sign_request 'C:/*.req'
