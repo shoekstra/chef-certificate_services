@@ -73,6 +73,7 @@ end
 
 aia_code = []
 aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+aia_code << "Add-CAAuthorityInformationAccess -Uri #{caconfig['aia_url']} -AddToCertificateAia -Force" unless caconfig['aia_url'].nil?
 
 powershell_script 'Configure AIA' do
   code aia_code.join('; ')
