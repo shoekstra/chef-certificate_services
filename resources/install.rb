@@ -180,6 +180,7 @@ action :create do
     powershell_script 'Generate new CRL' do
       code 'certutil -CRL'
       action :nothing
+      retries 3
       subscribes :run, 'windows_service[CertSvc]'
     end
 
@@ -310,6 +311,7 @@ action :create do
     powershell_script 'Generate new CRL' do
       code 'certutil -CRL'
       action :nothing
+      retries 3
       subscribes :run, 'windows_service[CertSvc]'
     end
 
