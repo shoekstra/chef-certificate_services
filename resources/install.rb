@@ -253,7 +253,7 @@ action :create do
       end
 
       ruby_block "Install #{win_friendly_root_file}" do
-        block { shell_out!("certutil –addstore –f root #{win_friendly_root_file}") }
+        block { shell_out!("certutil –addstore –f root \"#{win_friendly_root_file}\"") }
         only_if { ::File.exist?(win_friendly_root_file) }
         notifies :delete, "file[#{win_friendly_root_file}]"
       end
@@ -269,7 +269,7 @@ action :create do
       end
 
       ruby_block "Install #{win_friendly_install_cert_file} certificate" do
-        block { shell_out!("certutil -installCert #{win_friendly_install_cert_file}", powershell_out_options) }
+        block { shell_out!("certutil -installCert \"#{win_friendly_install_cert_file}\"", powershell_out_options) }
         not_if { ca_configured? }
         notifies :restart, 'windows_service[CertSvc]', :immediately
         notifies :delete, "file[#{win_friendly_install_cert_file}]"
