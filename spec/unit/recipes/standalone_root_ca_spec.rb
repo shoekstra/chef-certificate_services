@@ -63,11 +63,11 @@ describe 'certificate_services::standalone_root_ca' do
 
   let(:default_attributes) do
     {
-      # aia_url: nil,
+      aia_url: nil,
       allow_administrator_interaction: false,
       alternate_signature_algorithm: true,
       caconfig_dir: 'C:\CAConfig',
-      # cdp_url: nil,
+      cdp_url: nil,
       clock_skew_minutes: 10,
       common_name: nil,
       # crl_delta_overlap_period:,
@@ -91,7 +91,6 @@ describe 'certificate_services::standalone_root_ca' do
       load_default_templates: false,
       # log_level:,
       log_path: 'C:\Windows\system32\CertLog',
-      # ocsp_url: nil,
       output_cert_request_file: nil,
       overwrite_existing_ca_in_ds: false,
       overwrite_existing_database: false,
@@ -127,10 +126,37 @@ describe 'certificate_services::standalone_root_ca' do
     end
   end
 
+  describe 'when "aia_url" attribute is set to "http://pki.contoso.com/cdp/%3.crt"' do
+    let(:attributes) do
+      default_attributes.merge(aia_url: 'http://pki.contoso.com/cdp/%3.crt')
+    end
+
+    let(:code_configure_aia) do
+      [
+        'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
+        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3.crt -AddToCertificateAia -Force'
+      ].join('; ')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3.crt'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
+    end
+  end
+
   describe 'when "cdp_url" attribute is set to "http://pki.contoso.com/cdp/%3%8.crl"' do
     let(:attributes) do
-      # default_attributes.merge(cdp_url: 'http://pki.contoso.com/cdp/%3%8.crl')
-      default_attributes
+      default_attributes.merge(cdp_url: 'http://pki.contoso.com/cdp/%3%8.crl')
     end
 
     let(:code_configure_cdp) do

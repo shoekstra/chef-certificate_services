@@ -21,6 +21,8 @@ property :type, kind_of: String, required: true, regex: /^(EnterpriseSubordinate
 
 property :allow_administrator_interaction, kind_of: [TrueClass, FalseClass], required: false, default: false
 property :alternate_signature_algorithm,   kind_of: [TrueClass, FalseClass], required: true, default: false
+property :aia_url,                         kind_of: [String, NilClass],      required: false, default: nil
+property :cdp_url,                         kind_of: [String, NilClass],      required: false, default: nil
 property :caconfig_dir,                    kind_of: String,                  required: true, default: 'C:\CAConfig'
 property :clock_skew_minutes,              kind_of: [Fixnum, String],        required: false
 property :common_name,                     kind_of: String,                  required: false
@@ -43,6 +45,7 @@ property :install_cert_file,               kind_of: String,                  req
 property :key_length,                      kind_of: [Fixnum, String],        required: true, default: 4096
 property :load_default_templates,          kind_of: [TrueClass, FalseClass], required: true, default: false
 property :log_path,                        kind_of: String,                  required: true, default: 'C:\Windows\system32\CertLog'
+property :ocsp_url,                        kind_of: [String, NilClass],      required: false, default: nil
 property :output_cert_request_file,        kind_of: String,                  required: false
 property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass], required: false, default: false
 property :overwrite_existing_database,     kind_of: [TrueClass, FalseClass], required: false, default: false
@@ -135,6 +138,33 @@ action :create do
       end
       not_if { ca_installed? }
       action :run
+    end
+
+    #
+    # Configure AIA and CDP locations
+    #
+    cdp_code = []
+    cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
+    cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force'
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8.crl -PublishToServer -Force"
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
+
+    powershell_script 'Configure CDP' do
+      code cdp_code.join('; ')
+      action :run
+      notifies :restart, 'windows_service[CertSvc]'
+      only_if { ca_configured? }
+    end
+
+    aia_code = []
+    aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+    aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.aia_url} -AddToCertificateAia -Force" unless new_resource.aia_url.nil?
+
+    powershell_script 'Configure AIA' do
+      code aia_code.join('; ')
+      action :run
+      notifies :restart, 'windows_service[CertSvc]'
+      only_if { ca_configured? }
     end
 
     #
@@ -236,6 +266,34 @@ action :create do
       end
       not_if { ca_installed? }
       action :run
+    end
+
+    #
+    # Configure AIA and CDP locations
+    #
+    cdp_code = []
+    cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
+    cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force"
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
+
+    powershell_script 'Configure CDP' do
+      code cdp_code.join('; ')
+      action :run
+      notifies :restart, 'windows_service[CertSvc]'
+      only_if { ca_configured? }
+    end
+
+    aia_code = []
+    aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+    aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.aia_url} -AddToCertificateAia -Force" unless new_resource.aia_url.nil?
+    aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.ocsp_url} -AddToCertificateOcsp -Force" unless new_resource.ocsp_url.nil?
+
+    powershell_script 'Configure AIA' do
+      code aia_code.join('; ')
+      action :run
+      notifies :restart, 'windows_service[CertSvc]'
+      only_if { ca_configured? }
     end
 
     #

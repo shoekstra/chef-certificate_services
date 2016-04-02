@@ -31,8 +31,10 @@ certificate_services_install 'EnterpriseSubordinateCA' do
   # overwrite_existing_database caconfig['overwrite_existing_database'] if caconfig['overwrite_existing_database']
   # overwrite_existing_key caconfig['overwrite_existing_key'] if caconfig['overwrite_existing_key']
   # url caconfig['url'] if caconfig['url']
+  aia_url caconfig['aia_url'] if caconfig['aia_url']
   alternate_signature_algorithm caconfig['alternate_signature_algorithm'] if caconfig['alternate_signature_algorithm']
   caconfig_dir caconfig['caconfig_dir'] if caconfig['caconfig_dir']
+  cdp_url caconfig['cdp_url'] if caconfig['cdp_url']
   clock_skew_minutes caconfig['clock_skew_minutes'] if caconfig['clock_skew_minutes']
   common_name caconfig['common_name'] if caconfig['common_name']
   crl_delta_period caconfig['crl_delta_period'] if caconfig['crl_delta_period']
@@ -48,6 +50,7 @@ certificate_services_install 'EnterpriseSubordinateCA' do
   install_cert_file caconfig['install_cert_file'] if caconfig['install_cert_file']
   key_length caconfig['key_length'] if caconfig['key_length']
   load_default_templates caconfig['load_default_templates'] if caconfig['load_default_templates']
+  ocsp_url caconfig['ocsp_url'] if caconfig['ocsp_url']
   policy caconfig['policy'] if caconfig['policy']
   renewal_key_length caconfig['renewal_key_length'] if caconfig['renewal_key_length']
   renewal_validity_period caconfig['renewal_validity_period'] if caconfig['renewal_validity_period']
@@ -56,39 +59,6 @@ certificate_services_install 'EnterpriseSubordinateCA' do
   root_crt_file caconfig['root_crt_file'] if caconfig['root_crt_file']
   validity_period caconfig['validity_period'] if caconfig['validity_period']
   validity_period_units caconfig['validity_period_units'] if caconfig['validity_period_units']
-end
-
-## This should get moved to the install resource
-
-cdp_code = []
-cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
-cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
-cdp_code << "Add-CACrlDistributionPoint -Uri #{caconfig['caconfig_dir']}\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force"
-cdp_code << "Add-CACrlDistributionPoint -Uri #{caconfig['cdp_url']} -AddToCertificateCDP -Force" unless caconfig['cdp_url'].nil?
-
-powershell_script 'Configure CDP' do
-  code cdp_code.join('; ')
-  action :run
-  notifies :restart, 'windows_service[CertSvc]'
-  only_if { ca_configured? }
-end
-
-## This should get moved to the install resource
-
-aia_code = []
-aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
-aia_code << "Add-CAAuthorityInformationAccess -Uri #{caconfig['aia_url']} -AddToCertificateAia -Force" unless caconfig['aia_url'].nil?
-aia_code << "Add-CAAuthorityInformationAccess -Uri #{caconfig['ocsp_url']} -AddToCertificateOcsp -Force" unless caconfig['ocsp_url'].nil?
-
-powershell_script 'Configure AIA' do
-  code aia_code.join('; ')
-  action :run
-  notifies :restart, 'windows_service[CertSvc]'
-  only_if { ca_configured? }
-end
-
-windows_service 'CertSvc' do
-  action :nothing
 end
 
 #

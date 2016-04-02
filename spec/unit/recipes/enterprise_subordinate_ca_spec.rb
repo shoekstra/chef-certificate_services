@@ -60,11 +60,11 @@ describe 'certificate_services::enterprise_subordinate_ca' do
 
   let(:default_attributes) do
     {
-      # aia_url: nil,
+      aia_url: nil,
       # allow_administrator_interaction: false,
       alternate_signature_algorithm: true,
       caconfig_dir: 'C:\CAConfig',
-      # cdp_url: nil,
+      cdp_url: nil,
       clock_skew_minutes: 10,
       # common_name: nil,
       crl_delta_period: 'days',
@@ -87,7 +87,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       load_default_templates: false,
       # log_level:,
       # log_path: 'C:\Windows\system32\CertLog',
-      # ocsp_url: nil,
+      ocsp_url: nil,
       # output_cert_request_file: nil,
       # overwrite_existing_ca_in_ds: false,
       # overwrite_existing_database: false,
@@ -133,8 +133,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
 
   describe 'when "aia_url" attribute is set to "http://pki.contoso.com/cdp/%3%4.crt"' do
     let(:attributes) do
-      # default_attributes.merge(aia_url: 'http://pki.contoso.com/cdp/%3%4.crt')
-      default_attributes
+      default_attributes.merge(aia_url: 'http://pki.contoso.com/cdp/%3%4.crt')
     end
 
     let(:code_configure_aia) do
@@ -168,8 +167,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
 
   describe 'when "cdp_url" attribute is set to "http://pki.contoso.com/cdp/%3%8%9.crl"' do
     let(:attributes) do
-      # default_attributes.merge(cdp_url: 'http://pki.contoso.com/cdp/%3%8%9.crl')
-      default_attributes
+      default_attributes.merge(cdp_url: 'http://pki.contoso.com/cdp/%3%8%9.crl')
     end
 
     let(:code_configure_cdp) do
@@ -232,8 +230,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
 
   describe 'when "ocsp_url" attribute is set to "http://pki.contoso.com/ocsp"' do
     let(:attributes) do
-      # default_attributes.merge(ocsp_url: 'http://pki.contoso.com/ocsp')
-      default_attributes
+      default_attributes.merge(ocsp_url: 'http://pki.contoso.com/ocsp')
     end
 
     let(:code_configure_aia) do
