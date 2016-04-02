@@ -124,7 +124,7 @@ action :create do
     ruby_block 'Install ADCS Certification Authority' do
       block do
         config_ca_cmd = [
-          'Install-AdcsCertificationAuthority -Force -OverwriteExistingKey',
+          'Install-AdcsCertificationAuthority -Force',
           "-CAType #{new_resource.type}",
           "-CryptoProviderName '#{new_resource.crypto_provider}'",
           "-HashAlgorithmName #{new_resource.hash_algorithm}",
@@ -133,6 +133,9 @@ action :create do
           "-ValidityPeriodUnits #{new_resource.validity_period_units}"
         ]
         config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
+        config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
+        config_ca_cmd << '-OverwriteExistingDatabase' if new_resource.overwrite_existing_database
+        config_ca_cmd << '-OverwriteExistingKey' if new_resource.overwrite_existing_key
 
         powershell_out!(config_ca_cmd.join(' '))
       end
@@ -254,13 +257,16 @@ action :create do
     ruby_block 'Install ADCS Certification Authority' do
       block do
         config_ca_cmd = [
-          'Install-AdcsCertificationAuthority -Force -OverwriteExistingKey',
+          'Install-AdcsCertificationAuthority -Force',
           "-CAType #{new_resource.type}",
           "-CryptoProviderName '#{new_resource.crypto_provider}'",
           "-HashAlgorithmName #{new_resource.hash_algorithm}",
           "-KeyLength #{new_resource.key_length}"
         ]
         config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
+        config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
+        config_ca_cmd << '-OverwriteExistingDatabase' if new_resource.overwrite_existing_database
+        config_ca_cmd << '-OverwriteExistingKey' if new_resource.overwrite_existing_key
 
         powershell_out!(config_ca_cmd.join(' '), powershell_out_options)
       end

@@ -25,6 +25,24 @@ describe 'certificate_services::standalone_root_ca' do
     ].join('; ')
   end
 
+  let(:command_install_adcs) do
+    command = [
+      'Install-AdcsCertificationAuthority',
+      '-Force',
+      "-CAType StandaloneRootCA",
+      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
+      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
+      "-KeyLength #{attributes[:key_length]}",
+      "-ValidityPeriod #{attributes[:validity_period]}",
+      "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
+    ]
+    command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
+    command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
+    command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
+    command << '-OverwriteExistingKey' if attributes[:overwrite_existing_key]
+    command.join(' ')
+  end
+
   let(:content_capolicy) do <<-EOF.gsub(/^ {6}/, '')
       [Version]
       Signature="$Windows NT$"
@@ -43,22 +61,6 @@ describe 'certificate_services::standalone_root_ca' do
       ForceUTF8=0
       EnableKeyCounting=0
     EOF
-  end
-
-  let(:command_install_adcs) do
-    command = [
-      'Install-AdcsCertificationAuthority',
-      '-Force',
-      '-OverwriteExistingKey',
-      "-CAType StandaloneRootCA",
-      "-CryptoProviderName '#{attributes[:crypto_provider]}'",
-      "-HashAlgorithmName #{attributes[:hash_algorithm]}",
-      "-KeyLength #{attributes[:key_length]}",
-      "-ValidityPeriod #{attributes[:validity_period]}",
-      "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
-    ]
-    command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
-    command.join(' ')
   end
 
   let(:default_attributes) do

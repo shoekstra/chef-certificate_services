@@ -28,13 +28,15 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     command = [
       'Install-AdcsCertificationAuthority',
       '-Force',
-      '-OverwriteExistingKey',
       '-CAType EnterpriseSubordinateCA',
       "-CryptoProviderName '#{attributes[:crypto_provider]}'",
       "-HashAlgorithmName #{attributes[:hash_algorithm]}",
       "-KeyLength #{attributes[:key_length]}",
     ]
     command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
+    command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
+    command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
+    command << '-OverwriteExistingKey' if attributes[:overwrite_existing_key]
     command.join(' ')
   end
 
@@ -89,9 +91,9 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       # log_path: 'C:\Windows\system32\CertLog',
       ocsp_url: nil,
       # output_cert_request_file: nil,
-      # overwrite_existing_ca_in_ds: false,
-      # overwrite_existing_database: false,
-      # overwrite_existing_key: false,
+      overwrite_existing_ca_in_ds: false,
+      overwrite_existing_database: false,
+      overwrite_existing_key: false,
       policy: nil,
       renewal_key_length: 4096,
       renewal_validity_period: 'years',
@@ -246,6 +248,39 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
         node.set['certificate_services']['enterprise_subordinate_ca']['ocsp_url'] = 'http://pki.contoso.com/ocsp'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "overwrite" attributes are set to "true"' do
+    let(:attributes) do
+      default_attributes.merge(
+        overwrite_existing_ca_in_ds: true,
+        overwrite_existing_database: true,
+        overwrite_existing_key: true
+      )
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_ca_in_ds'] = true
+        node.set['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_database'] = true
+        node.set['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_key'] = true
       end.converge(described_recipe)
     end
 
