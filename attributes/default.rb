@@ -25,7 +25,7 @@ default['certificate_services']['standalone_root_ca']['crl_overlap_units']      
 default['certificate_services']['standalone_root_ca']['crl_period']                             = 'weeks'
 default['certificate_services']['standalone_root_ca']['crl_period_units']                       = 26
 default['certificate_services']['standalone_root_ca']['crypto_provider']                        = 'RSA#Microsoft Software Key Storage Provider'
-default['certificate_services']['standalone_root_ca']['database_path']                          = 'C:\Windows\system32\CertLog'
+default['certificate_services']['standalone_root_ca']['database_directory']                     = 'C:\Windows\system32\CertLog'
 default['certificate_services']['standalone_root_ca']['enable_auditing_eventlogs']              = true
 default['certificate_services']['standalone_root_ca']['enable_key_counting']                    = false
 default['certificate_services']['standalone_root_ca']['enforce_x500_name_lengths']              = false  ##
@@ -34,7 +34,7 @@ default['certificate_services']['standalone_root_ca']['hash_algorithm']         
 default['certificate_services']['standalone_root_ca']['key_length']                             = 4096
 default['certificate_services']['standalone_root_ca']['load_default_templates']                 = false
 default['certificate_services']['standalone_root_ca']['log_level']                              = nil  ##
-default['certificate_services']['standalone_root_ca']['log_path']                               = 'C:\Windows\system32\CertLog'
+default['certificate_services']['standalone_root_ca']['log_directory']                          = 'C:\Windows\system32\CertLog'
 default['certificate_services']['standalone_root_ca']['ocsp_url']                               = nil
 default['certificate_services']['standalone_root_ca']['output_cert_request_file']               = nil
 default['certificate_services']['standalone_root_ca']['overwrite_existing_ca_in_ds']            = false
@@ -66,7 +66,7 @@ default['certificate_services']['enterprise_subordinate_ca']['crl_overlap_units'
 default['certificate_services']['enterprise_subordinate_ca']['crl_period']                      = 'weeks'
 default['certificate_services']['enterprise_subordinate_ca']['crl_period_units']                = 2
 default['certificate_services']['enterprise_subordinate_ca']['crypto_provider']                 = 'RSA#Microsoft Software Key Storage Provider'
-default['certificate_services']['enterprise_subordinate_ca']['database_path']                   = 'C:\Windows\system32\CertLog'
+default['certificate_services']['enterprise_subordinate_ca']['database_directory']              = 'C:\Windows\system32\CertLog'
 default['certificate_services']['enterprise_subordinate_ca']['domain_pass']                     = nil
 default['certificate_services']['enterprise_subordinate_ca']['domain_user']                     = nil
 default['certificate_services']['enterprise_subordinate_ca']['enable_auditing_eventlogs']       = true
@@ -78,7 +78,7 @@ default['certificate_services']['enterprise_subordinate_ca']['install_cert_file'
 default['certificate_services']['enterprise_subordinate_ca']['key_length']                      = 4096
 default['certificate_services']['enterprise_subordinate_ca']['load_default_templates']          = false
 default['certificate_services']['enterprise_subordinate_ca']['log_level']                       = nil ##
-default['certificate_services']['enterprise_subordinate_ca']['log_path']                        = 'C:\Windows\system32\CertLog'
+default['certificate_services']['enterprise_subordinate_ca']['log_directory']                   = 'C:\Windows\system32\CertLog'
 default['certificate_services']['enterprise_subordinate_ca']['ocsp_url']                        = nil
 default['certificate_services']['enterprise_subordinate_ca']['output_cert_request_file']        = nil
 default['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_ca_in_ds']     = false

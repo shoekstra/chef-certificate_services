@@ -30,8 +30,10 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       '-Force',
       '-CAType EnterpriseSubordinateCA',
       "-CryptoProviderName '#{attributes[:crypto_provider]}'",
+      "-DatabaseDirectory '#{attributes[:database_directory]}'",
       "-HashAlgorithmName #{attributes[:hash_algorithm]}",
       "-KeyLength #{attributes[:key_length]}",
+      "-LogDirectory '#{attributes[:log_directory]}'"
     ]
     command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
     command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
@@ -76,7 +78,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       crl_period: 'weeks',
       crl_period_units: 2,
       crypto_provider: 'RSA#Microsoft Software Key Storage Provider',
-      # database_path: 'C:\Windows\system32\CertLog',
+      database_directory: 'C:\Windows\system32\CertLog',
       # domain_pass: nil,
       # domain_user: nil,
       enable_auditing_eventlogs: true,
@@ -88,7 +90,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       key_length: 4096,
       load_default_templates: false,
       # log_level:,
-      # log_path: 'C:\Windows\system32\CertLog',
+      log_directory: 'C:\Windows\system32\CertLog',
       ocsp_url: nil,
       # output_cert_request_file: nil,
       overwrite_existing_ca_in_ds: false,
@@ -214,6 +216,37 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
         node.set['certificate_services']['enterprise_subordinate_ca']['common_name'] = 'ENTERPRISE_ISSUINGCA'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "database_directory" and "log_directory" attributes are set to "C:\Test"' do
+    let(:attributes) do
+      default_attributes.merge(
+         database_directory: 'C:\Test',
+         log_directory: 'C:\Test'
+      )
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['database_directory'] = 'C:\Test'
+        node.set['certificate_services']['enterprise_subordinate_ca']['log_directory'] = 'C:\Test'
       end.converge(described_recipe)
     end
 

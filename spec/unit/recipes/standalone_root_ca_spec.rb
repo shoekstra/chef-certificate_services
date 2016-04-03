@@ -31,8 +31,10 @@ describe 'certificate_services::standalone_root_ca' do
       '-Force',
       "-CAType StandaloneRootCA",
       "-CryptoProviderName '#{attributes[:crypto_provider]}'",
+      "-DatabaseDirectory '#{attributes[:database_directory]}'",
       "-HashAlgorithmName #{attributes[:hash_algorithm]}",
       "-KeyLength #{attributes[:key_length]}",
+      "-LogDirectory '#{attributes[:log_directory]}'",
       "-ValidityPeriod #{attributes[:validity_period]}",
       "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
     ]
@@ -81,7 +83,7 @@ describe 'certificate_services::standalone_root_ca' do
       crl_period: 'weeks',
       crl_period_units: 26,
       crypto_provider: 'RSA#Microsoft Software Key Storage Provider',
-      database_path: 'C:\Windows\system32\CertLog',
+      database_directory: 'C:\Windows\system32\CertLog',
       domain_pass: nil,
       domain_user: nil,
       enable_auditing_eventlogs: true,
@@ -92,7 +94,7 @@ describe 'certificate_services::standalone_root_ca' do
       key_length: 4096,
       load_default_templates: false,
       # log_level:,
-      log_path: 'C:\Windows\system32\CertLog',
+      log_directory: 'C:\Windows\system32\CertLog',
       output_cert_request_file: nil,
       overwrite_existing_ca_in_ds: false,
       overwrite_existing_database: false,
@@ -195,6 +197,31 @@ describe 'certificate_services::standalone_root_ca' do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
         node.set['certificate_services']['standalone_root_ca']['common_name'] = 'STANDALONE_ROOTCA'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
+    end
+  end
+
+  describe 'when "database_directory" and "log_directory" attributes are set to "C:\Test"' do
+    let(:attributes) do
+      default_attributes.merge(
+         database_directory: 'C:\Test',
+         log_directory: 'C:\Test'
+      )
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['database_directory'] = 'C:\Test'
+        node.set['certificate_services']['standalone_root_ca']['log_directory'] = 'C:\Test'
       end.converge(described_recipe)
     end
 

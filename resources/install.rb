@@ -33,7 +33,7 @@ property :crl_overlap_units,               kind_of: [Fixnum, String],        req
 property :crl_period,                      kind_of: String,                  required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
 property :crl_period_units,                kind_of: [Fixnum, String],        required: false
 property :crypto_provider,                 kind_of: String,                  required: true, default: 'RSA#Microsoft Software Key Storage Provider'
-property :database_path,                   kind_of: String,                  required: true, default: 'C:\Windows\system32\CertLog'
+property :database_directory,              kind_of: String,                  required: true, default: 'C:\Windows\system32\CertLog'
 property :domain,                          kind_of: String,                  required: false, default: node['domain']
 property :domain_pass,                     kind_of: String,                  required: false
 property :domain_user,                     kind_of: String,                  required: false
@@ -44,7 +44,7 @@ property :hash_algorithm,                  kind_of: String,                  req
 property :install_cert_file,               kind_of: String,                  required: false
 property :key_length,                      kind_of: [Fixnum, String],        required: true, default: 4096
 property :load_default_templates,          kind_of: [TrueClass, FalseClass], required: true, default: false
-property :log_path,                        kind_of: String,                  required: true, default: 'C:\Windows\system32\CertLog'
+property :log_directory,                   kind_of: String,                  required: true, default: 'C:\Windows\system32\CertLog'
 property :ocsp_url,                        kind_of: [String, NilClass],      required: false, default: nil
 property :output_cert_request_file,        kind_of: String,                  required: false
 property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass], required: false, default: false
@@ -127,8 +127,10 @@ action :create do
           'Install-AdcsCertificationAuthority -Force',
           "-CAType #{new_resource.type}",
           "-CryptoProviderName '#{new_resource.crypto_provider}'",
+          "-DatabaseDirectory '#{new_resource.database_directory}'",
           "-HashAlgorithmName #{new_resource.hash_algorithm}",
           "-KeyLength #{new_resource.key_length}",
+          "-LogDirectory '#{new_resource.log_directory}'",
           "-ValidityPeriod #{new_resource.validity_period}",
           "-ValidityPeriodUnits #{new_resource.validity_period_units}"
         ]
@@ -260,8 +262,10 @@ action :create do
           'Install-AdcsCertificationAuthority -Force',
           "-CAType #{new_resource.type}",
           "-CryptoProviderName '#{new_resource.crypto_provider}'",
+          "-DatabaseDirectory '#{new_resource.database_directory}'",
           "-HashAlgorithmName #{new_resource.hash_algorithm}",
-          "-KeyLength #{new_resource.key_length}"
+          "-KeyLength #{new_resource.key_length}",
+          "-LogDirectory '#{new_resource.log_directory}'",
         ]
         config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
         config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
