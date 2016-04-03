@@ -9,8 +9,6 @@ RSpec.configure do |config|
 end
 
 shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configured' do
-  let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
   let(:registry_key_values_ca) do
     arr = []
     arr << { name: 'CRLDeltaPeriod',      type: :string, data: attributes[:crl_delta_period].downcase.capitalize }
@@ -80,14 +78,6 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
     expect(chef_run).to_not run_powershell_script('Configure AIA').with_code(code_configure_aia)
   end
 
-  it 'should not copy the certificate and CRL to the CAConfig directory' do
-    expect(chef_run).to_not run_batch('Copy certificate and CRLs to the CAConfig directory').with(
-      architecture: :x86_64,
-      code: code_copy_crt_crl,
-      returns: [0, 1]
-    )
-  end
-
   describe 'steps into certificate_services_install and' do
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
@@ -129,8 +119,6 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
 end
 
 shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured' do
-  let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
   let(:registry_key_values_ca) do
     arr = []
     arr << { name: 'CRLDeltaPeriod',      type: :string, data: attributes[:crl_delta_period].downcase.capitalize }
@@ -200,14 +188,6 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
     expect(chef_run).to_not run_powershell_script('Configure AIA').with_code(code_configure_aia)
   end
 
-  it 'should not copy the certificate and CRL to the CAConfig directory' do
-    expect(chef_run).to_not run_batch('Copy certificate and CRLs to the CAConfig directory').with(
-      architecture: :x86_64,
-      code: code_copy_crt_crl,
-      returns: [0, 1]
-    )
-  end
-
   describe 'steps into certificate_services_install and' do
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
@@ -249,8 +229,6 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
 end
 
 shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
-  let(:code_copy_crt_crl) { "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{attributes[:caconfig_dir]}\" /MIR /NDL /NJS /NJH" }
-
   let(:registry_key_values_ca) do
     arr = []
 
@@ -315,14 +293,6 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
 
   it 'should configure AIA' do
     expect(chef_run).to run_powershell_script('Configure AIA').with_code(code_configure_aia)
-  end
-
-  it 'should copy the certificate and CRL to the CAConfig directory' do
-    expect(chef_run).to run_batch('Copy certificate and CRLs to the CAConfig directory').with(
-      architecture: :x86_64,
-      code: code_copy_crt_crl,
-      returns: [0, 1]
-    )
   end
 
   describe 'steps into certificate_services_install and' do

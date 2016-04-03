@@ -62,6 +62,12 @@ property :windows_domain,                  kind_of: String,                  req
 
 action :create do
   #
+  # Set powershell_out options for later
+  #
+  powershell_out_options = {}
+  powershell_out_options = { user: new_resource.domain_user, password: new_resource.domain_pass, domain: node['domain'] } if new_resource.type == 'EnterpriseSubordinateCA'
+
+  #
   # Create CAPolicy.inf template
   #
   policy = new_resource.policy
@@ -93,219 +99,48 @@ action :create do
   #
   # Install AD CS windows feature
   #
-  directory new_resource.caconfig_dir
-
   windows_feature 'ADCS-Cert-Authority' do
     action :install
     provider :windows_feature_powershell
   end
 
-  if new_resource.type == 'StandaloneRootCA'
-    #
-    # Cookbook Name:: sbp_certificate_services
-    # Recipe:: standalone_root_ca
-    #
-    # Copyright (C) 2015 Schuberg Philis
-    #
-    # Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
-    #
+  #
+  # Install AD CS RSAT windows feature
+  #
+  windows_feature 'RSAT-ADCS-Mgmt' do
+    action :install
+    provider :windows_feature_powershell
+  end
 
-    #
-    # Install AD CS RSAT windows feature
-    #
-    windows_feature 'RSAT-ADCS-Mgmt' do
-      action :install
-      provider :windows_feature_powershell
-    end
+  #
+  # Configure the CA
+  #
+  directory new_resource.caconfig_dir
 
-    #
-    # Configure the CA
-    #
-    ruby_block 'Install ADCS Certification Authority' do
-      block do
-        config_ca_cmd = [
-          'Install-AdcsCertificationAuthority -Force',
-          "-CAType #{new_resource.type}",
-          "-CryptoProviderName '#{new_resource.crypto_provider}'",
-          "-DatabaseDirectory '#{new_resource.database_directory}'",
-          "-HashAlgorithmName #{new_resource.hash_algorithm}",
-          "-KeyLength #{new_resource.key_length}",
-          "-LogDirectory '#{new_resource.log_directory}'",
-          "-ValidityPeriod #{new_resource.validity_period}",
-          "-ValidityPeriodUnits #{new_resource.validity_period_units}"
-        ]
-        config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
-        config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
-        config_ca_cmd << '-OverwriteExistingDatabase' if new_resource.overwrite_existing_database
-        config_ca_cmd << '-OverwriteExistingKey' if new_resource.overwrite_existing_key
+  config_ca_cmd = [
+    'Install-AdcsCertificationAuthority -Force',
+    "-CAType #{new_resource.type}",
+    "-CryptoProviderName '#{new_resource.crypto_provider}'",
+    "-DatabaseDirectory '#{new_resource.database_directory}'",
+    "-HashAlgorithmName #{new_resource.hash_algorithm}",
+    "-KeyLength #{new_resource.key_length}",
+    "-LogDirectory '#{new_resource.log_directory}'",
+  ]
 
-        powershell_out!(config_ca_cmd.join(' '))
-      end
-      not_if { ca_installed? }
-      action :run
-    end
+  config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
+  config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
+  config_ca_cmd << '-OverwriteExistingDatabase' if new_resource.overwrite_existing_database
+  config_ca_cmd << '-OverwriteExistingKey' if new_resource.overwrite_existing_key
+  config_ca_cmd << "-ValidityPeriod #{new_resource.validity_period}" if new_resource.type == 'StandaloneRootCA'
+  config_ca_cmd << "-ValidityPeriodUnits #{new_resource.validity_period_units}" if new_resource.type == 'StandaloneRootCA'
 
-    #
-    # Configure AIA and CDP locations
-    #
-    cdp_code = []
-    cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
-    cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force'
-    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8.crl -PublishToServer -Force"
-    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
+  ruby_block 'Install ADCS Certification Authority' do
+    block { powershell_out!(config_ca_cmd.join(' '), powershell_out_options) }
+    not_if { ca_installed? }
+    action :run
+  end
 
-    powershell_script 'Configure CDP' do
-      code cdp_code.join('; ')
-      action :run
-      notifies :restart, 'windows_service[CertSvc]'
-      only_if { ca_configured? }
-    end
-
-    aia_code = []
-    aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
-    aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.aia_url} -AddToCertificateAia -Force" unless new_resource.aia_url.nil?
-
-    powershell_script 'Configure AIA' do
-      code aia_code.join('; ')
-      action :run
-      notifies :restart, 'windows_service[CertSvc]'
-      only_if { ca_configured? }
-    end
-
-    #
-    # Set certificate and certificate revocation list related registry values
-    #
-    registry_values = []
-    registry_values << { name: 'AuditFilter',         type: :dword,  data: '127' } if new_resource.enable_auditing_eventlogs
-    registry_values << { name: 'CRLDeltaPeriod',      type: :string, data: new_resource.crl_delta_period.downcase.capitalize } if new_resource.crl_delta_period
-    registry_values << { name: 'CRLDeltaPeriodUnits', type: :dword,  data: new_resource.crl_delta_period_units } if new_resource.crl_delta_period_units
-    registry_values << { name: 'CRLOverlapPeriod',    type: :string, data: new_resource.crl_overlap_period.downcase.capitalize } if new_resource.crl_overlap_period
-    registry_values << { name: 'CRLOverlapUnits',     type: :dword,  data: new_resource.crl_overlap_units } if new_resource.crl_overlap_units
-    registry_values << { name: 'CRLPeriod',           type: :string, data: new_resource.crl_period.downcase.capitalize } if new_resource.crl_period
-    registry_values << { name: 'CRLPeriodUnits',      type: :dword,  data: new_resource.crl_period_units } if new_resource.crl_period_units
-    registry_values << { name: 'DSConfigDN',          type: :string, data: "CN=Configuration,#{domain_dn(new_resource.windows_domain)}" } if new_resource.windows_domain
-    registry_values << { name: 'DSDomainDN',          type: :string, data: domain_dn(new_resource.windows_domain) } if new_resource.windows_domain
-    registry_values << { name: 'ValidityPeriod',      type: :string, data: new_resource.validity_period.downcase.capitalize } if new_resource.validity_period
-    registry_values << { name: 'ValidityPeriodUnits', type: :dword,  data: new_resource.validity_period_units } if new_resource.validity_period_units
-
-    unless ca_name.nil?
-      registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}" do
-        values registry_values
-        action :create
-        only_if { ca_configured? }
-        notifies :restart, 'windows_service[CertSvc]', :immediately
-      end
-    end
-    # registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{common_name}" do
-    #   values registry_values
-    #   action :create
-    #   notifies :restart, 'windows_service[CertSvc]', :immediately
-    # end
-
-    #
-    # Start the Active Directory Certificate Services service
-    #
-    windows_service 'CertSvc' do
-      action [:enable, :start]
-    end
-
-    #
-    # Generate a CRL for distribution
-    #
-    powershell_script 'Generate new CRL' do
-      code 'certutil -CRL'
-      action :nothing
-      retries 3
-      subscribes :run, 'windows_service[CertSvc]'
-    end
-
-    #
-    # Copy the root CA certificate and CRL to the PKI directory for easy access
-    #
-
-    # batch 'Copy certificate and CRLs to the PKI directory' do
-    #   architecture :x86_64
-    #   code "robocopy \"C:\\Windows\\System32\\CertSrv\\CertEnroll\" \"#{new_resource.caconfig_dir}\" /MIR /NDL /NJS /NJH"
-    #   returns [0, 1]
-    #   action :run
-    # end
-  else
-    #
-    # Cookbook Name:: sbp_certificate_services
-    # Recipe:: enterprise_subordinate_ca
-    #
-    # Copyright (C) 2015 Schuberg Philis
-    #
-    # Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
-    #
-
-    #
-    # Install AD CS RSAT windows feature
-    #
-    windows_feature 'RSAT-ADCS-Mgmt' do
-      action :install
-      provider :windows_feature_powershell
-    end
-
-    #
-    # Configure the CA
-    #
-    powershell_out_options = {
-      user: new_resource.domain_user,
-      password: new_resource.domain_pass,
-      domain: node['domain']
-    }
-
-    ruby_block 'Install ADCS Certification Authority' do
-      block do
-        config_ca_cmd = [
-          'Install-AdcsCertificationAuthority -Force',
-          "-CAType #{new_resource.type}",
-          "-CryptoProviderName '#{new_resource.crypto_provider}'",
-          "-DatabaseDirectory '#{new_resource.database_directory}'",
-          "-HashAlgorithmName #{new_resource.hash_algorithm}",
-          "-KeyLength #{new_resource.key_length}",
-          "-LogDirectory '#{new_resource.log_directory}'",
-        ]
-        config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
-        config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
-        config_ca_cmd << '-OverwriteExistingDatabase' if new_resource.overwrite_existing_database
-        config_ca_cmd << '-OverwriteExistingKey' if new_resource.overwrite_existing_key
-
-        powershell_out!(config_ca_cmd.join(' '), powershell_out_options)
-      end
-      not_if { ca_installed? }
-      action :run
-    end
-
-    #
-    # Configure AIA and CDP locations
-    #
-    cdp_code = []
-    cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
-    cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
-    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force"
-    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
-
-    powershell_script 'Configure CDP' do
-      code cdp_code.join('; ')
-      action :run
-      notifies :restart, 'windows_service[CertSvc]'
-      only_if { ca_configured? }
-    end
-
-    aia_code = []
-    aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
-    aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.aia_url} -AddToCertificateAia -Force" unless new_resource.aia_url.nil?
-    aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.ocsp_url} -AddToCertificateOcsp -Force" unless new_resource.ocsp_url.nil?
-
-    powershell_script 'Configure AIA' do
-      code aia_code.join('; ')
-      action :run
-      notifies :restart, 'windows_service[CertSvc]'
-      only_if { ca_configured? }
-    end
-
+  if new_resource.type == 'EnterpriseSubordinateCA'
     #
     # Import root certificate and revocation list to root store
     #
@@ -330,8 +165,9 @@ action :create do
     #
     # Install subordinate certificate
     #
-    win_friendly_install_cert_file = win_friendly_path(::File.join(new_resource.caconfig_dir, new_resource.install_cert_file)) if new_resource.install_cert_file
-    if new_resource.install_cert_file && ::File.exist?(win_friendly_install_cert_file)
+    if new_resource.install_cert_file && ::File.exist?(::File.join(new_resource.caconfig_dir, new_resource.install_cert_file))
+      win_friendly_install_cert_file = win_friendly_path(::File.join(new_resource.caconfig_dir, new_resource.install_cert_file))
+
       file win_friendly_install_cert_file do
         action :nothing
       end
@@ -343,46 +179,82 @@ action :create do
         notifies :delete, "file[#{win_friendly_install_cert_file}]"
       end
     end
+  end
 
-    registry_values = []
-    registry_values << { name: 'AuditFilter',         type: :dword,  data: '127' } if new_resource.enable_auditing_eventlogs
-    registry_values << { name: 'CRLDeltaPeriod',      type: :string, data: new_resource.crl_delta_period.downcase.capitalize } if new_resource.crl_delta_period
-    registry_values << { name: 'CRLDeltaPeriodUnits', type: :dword,  data: new_resource.crl_delta_period_units } if new_resource.crl_delta_period_units
-    registry_values << { name: 'CRLOverlapPeriod',    type: :string, data: new_resource.crl_overlap_period.downcase.capitalize } if new_resource.crl_overlap_period
-    registry_values << { name: 'CRLOverlapUnits',     type: :dword,  data: new_resource.crl_overlap_units } if new_resource.crl_overlap_units
-    registry_values << { name: 'CRLPeriod',           type: :string, data: new_resource.crl_period.downcase.capitalize } if new_resource.crl_period
-    registry_values << { name: 'CRLPeriodUnits',      type: :dword,  data: new_resource.crl_period_units } if new_resource.crl_period_units
-    registry_values << { name: 'DSConfigDN',          type: :string, data: "CN=Configuration,#{domain_dn(new_resource.windows_domain)}" } if new_resource.windows_domain
-    registry_values << { name: 'DSDomainDN',          type: :string, data: domain_dn(new_resource.windows_domain) } if new_resource.windows_domain
-    registry_values << { name: 'ValidityPeriod',      type: :string, data: new_resource.validity_period.downcase.capitalize } if new_resource.validity_period
-    registry_values << { name: 'ValidityPeriodUnits', type: :dword,  data: new_resource.validity_period_units } if new_resource.validity_period_units
+  #
+  # Configure AIA and CDP locations
+  #
+  cdp_code = []
+  cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
+  if new_resource.type == 'StandaloneRootCA'
+    cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force'
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8.crl -PublishToServer -Force"
+  elsif new_resource.type == 'EnterpriseSubordinateCA'
+    cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force"
+  end
+  cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
 
-    unless ca_name.nil?
-      registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}" do
-        values registry_values
-        action :create
-        only_if { ca_configured? }
-        notifies :restart, 'windows_service[CertSvc]', :immediately
-      end
+  aia_code = []
+  aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+  aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.aia_url} -AddToCertificateAia -Force" unless new_resource.aia_url.nil?
+  aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.ocsp_url} -AddToCertificateOcsp -Force" unless new_resource.ocsp_url.nil?
+
+  powershell_script 'Configure CDP' do
+    code cdp_code.join('; ')
+    action :run
+    notifies :restart, 'windows_service[CertSvc]'
+    only_if { ca_configured? }
+  end
+
+  powershell_script 'Configure AIA' do
+    code aia_code.join('; ')
+    action :run
+    notifies :restart, 'windows_service[CertSvc]'
+    only_if { ca_configured? }
+  end
+
+  #
+  # Set certificate and certificate revocation list related registry values
+  #
+  registry_values = []
+  registry_values << { name: 'AuditFilter',         type: :dword,  data: '127' } if new_resource.enable_auditing_eventlogs
+  registry_values << { name: 'CRLDeltaPeriod',      type: :string, data: new_resource.crl_delta_period.downcase.capitalize } if new_resource.crl_delta_period
+  registry_values << { name: 'CRLDeltaPeriodUnits', type: :dword,  data: new_resource.crl_delta_period_units } if new_resource.crl_delta_period_units
+  registry_values << { name: 'CRLOverlapPeriod',    type: :string, data: new_resource.crl_overlap_period.downcase.capitalize } if new_resource.crl_overlap_period
+  registry_values << { name: 'CRLOverlapUnits',     type: :dword,  data: new_resource.crl_overlap_units } if new_resource.crl_overlap_units
+  registry_values << { name: 'CRLPeriod',           type: :string, data: new_resource.crl_period.downcase.capitalize } if new_resource.crl_period
+  registry_values << { name: 'CRLPeriodUnits',      type: :dword,  data: new_resource.crl_period_units } if new_resource.crl_period_units
+  registry_values << { name: 'DSConfigDN',          type: :string, data: "CN=Configuration,#{domain_dn(new_resource.windows_domain)}" } if new_resource.windows_domain
+  registry_values << { name: 'DSDomainDN',          type: :string, data: domain_dn(new_resource.windows_domain) } if new_resource.windows_domain
+  registry_values << { name: 'ValidityPeriod',      type: :string, data: new_resource.validity_period.downcase.capitalize } if new_resource.validity_period
+  registry_values << { name: 'ValidityPeriodUnits', type: :dword,  data: new_resource.validity_period_units } if new_resource.validity_period_units
+
+  unless ca_name.nil?
+    registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}" do
+      values registry_values
+      action :create
+      only_if { ca_configured? }
+      notifies :restart, 'windows_service[CertSvc]', :immediately
     end
+  end
 
-    #
-    # Start the Active Directory Certificate Services service
-    #
-    windows_service 'CertSvc' do
-      action ca_configured? ? [:enable, :start] : :nothing
-    end
+  #
+  # Start the Active Directory Certificate Services service
+  #
+  windows_service 'CertSvc' do
+    action new_resource.type == 'StandaloneRootCA' ? [:enable, :start] : ca_configured? ? [:enable, :start] : :nothing
+  end
 
-    #
-    # Generate a new CRL each time the service is restarted
-    #
-    powershell_script 'Generate new CRL' do
-      code 'certutil -CRL'
-      action :nothing
-      retries 3
-      subscribes :run, 'windows_service[CertSvc]'
-    end
-
+  #
+  # Generate a new CRL each time the service is restarted
+  #
+  powershell_script 'Generate new CRL' do
+    code 'certutil -CRL'
+    action :nothing
+    retries 3
+    only_if { ca_configured? }
+    subscribes :run, 'windows_service[CertSvc]'
   end
 end
 

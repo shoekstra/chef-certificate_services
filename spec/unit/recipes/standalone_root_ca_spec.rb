@@ -34,14 +34,14 @@ describe 'certificate_services::standalone_root_ca' do
       "-DatabaseDirectory '#{attributes[:database_directory]}'",
       "-HashAlgorithmName #{attributes[:hash_algorithm]}",
       "-KeyLength #{attributes[:key_length]}",
-      "-LogDirectory '#{attributes[:log_directory]}'",
-      "-ValidityPeriod #{attributes[:validity_period]}",
-      "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
+      "-LogDirectory '#{attributes[:log_directory]}'"
     ]
     command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
     command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
     command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
     command << '-OverwriteExistingKey' if attributes[:overwrite_existing_key]
+    command << "-ValidityPeriod #{attributes[:validity_period]}"
+    command << "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
     command.join(' ')
   end
 
