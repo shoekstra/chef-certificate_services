@@ -31,6 +31,7 @@ describe 'A Standalone Root CA' do
       it { should have_property_value('CRLPeriodUnits',      :type_string, '26') }
       it { should have_property_value('DSConfigDN',          :type_string, 'CN=Configuration,DC=CONTOSO,DC=COM') }
       it { should have_property_value('DSDomainDN',          :type_string, 'DC=CONTOSO,DC=COM') }
+      it { should have_property_value('KeySize',             :type_string, '4096') }
       it { should have_property_value('ValidityPeriod',      :type_string, 'Years') }
       it { should have_property_value('ValidityPeriodUnits', :type_string, '10') }
     end
