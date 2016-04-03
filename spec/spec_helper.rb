@@ -444,6 +444,10 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
     )
   end
 
+  it 'create a certificate_services_sign_request[C:/*.req] resource' do
+    expect(chef_run).to create_certificate_services_sign_request('C:/*.req')
+  end
+
   describe 'steps into certificate_services_install and' do
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
@@ -572,6 +576,10 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
       code: code_copy_crt_crl,
       returns: [0, 1]
     )
+  end
+
+  it 'create a certificate_services_sign_request[C:/*.req] resource' do
+    expect(chef_run).to create_certificate_services_sign_request('C:/*.req')
   end
 
   describe 'steps into certificate_services_install and' do
