@@ -1,0 +1,9 @@
+{
+  "name": "SubordinateCA-windows2012r2",
+  "automatic": {
+    "hostname": "SUBCA"
+  },
+  "run_list": [
+    "recipe[certificate_services::enterprise_subordinate_ca]"
+  ]
+}

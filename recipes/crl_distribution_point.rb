@@ -41,14 +41,30 @@ end
 #
 cdp = node['certificate_services']['crl_distribution_point']['cdp']
 
+enterprise_subordinates = []
+search(
+  :node,
+  "(chef_environment:#{node.chef_environment} AND recipe:certificate_services\\:\\:enterprise_subordinate_ca)",
+  :filter_result => { 'hostname' => [ 'hostname' ] }
+).each do |node|
+  enterprise_subordinates << node['hostname']
+end
+
 directory cdp['physical_dir_path'] do
   rights :read_execute, 'IIS APPPOOL\\DefaultAppPool'
   rights :modify, "#{node['domain']}\\Cert Publishers"
+  enterprise_subordinates.each do |ca|
+    rights :modify, "#{node['domain']}\\#{ca.upcase}$"
+  end
   ignore_failure true # This resource would fail if nodes built in parallel and the "Cert Publishers" does not yet exist
 end
 
+smb_full_access = []
+smb_full_access << 'SYSTEM'
+smb_full_access << "'#{node['domain']}\\Domain Admins'"
+
 powershell_script 'Create AIA/CDP SMB share' do
-  code "New-SmbShare -Name CDP -Path #{cdp['physical_dir_path']} -FullAccess SYSTEM,'#{node['domain']}\\Domain Admins' -ChangeAccess '#{node['domain']}\\Cert Publishers'"
+  code "New-SmbShare -Name CDP -Path #{cdp['physical_dir_path']} -FullAccess SYSTEM,'#{node['domain']}\\Domain Admins' -ChangeAccess 'Authenticated Users'"
   not_if 'Get-SmbShare -Name CDP'
 end
 

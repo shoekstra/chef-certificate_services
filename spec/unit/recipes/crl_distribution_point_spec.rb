@@ -19,6 +19,7 @@ describe 'certificate_services::crl_distribution_point' do
 
     before do
       stub_command('Get-SmbShare -Name CDP').and_return(false)
+      stub_search("node", "(chef_environment:_default AND recipe:certificate_services\\:\\:enterprise_subordinate_ca)").and_return([{"hostname"=>"subca1"}, {"hostname"=>"subca2"}])
     end
 
     it 'should converge successfully' do
@@ -50,12 +51,14 @@ describe 'certificate_services::crl_distribution_point' do
       expect(chef_run).to create_directory('C:\inetpub\cdp').with_rights(
         [
           { permissions: :read_execute, principals: 'IIS APPPOOL\\DefaultAppPool' },
-          { permissions: :modify,       principals: 'CONTOSO\\Cert Publishers' }
+          { permissions: :modify,       principals: 'CONTOSO\\Cert Publishers' },
+          { permissions: :modify,       principals: 'CONTOSO\\SUBCA1$' },
+          { permissions: :modify,       principals: 'CONTOSO\\SUBCA2$' }
         ]
       )
 
       expect(chef_run).to run_powershell_script('Create AIA/CDP SMB share').with(
-        code: 'New-SmbShare -Name CDP -Path C:\inetpub\cdp -FullAccess SYSTEM,\'CONTOSO\Domain Admins\' -ChangeAccess \'CONTOSO\Cert Publishers\''
+        code: 'New-SmbShare -Name CDP -Path C:\inetpub\cdp -FullAccess SYSTEM,\'CONTOSO\Domain Admins\' -ChangeAccess \'Authenticated Users\''
       )
 
       expect(chef_run).to add_iis_vdir('/cdp').with(
