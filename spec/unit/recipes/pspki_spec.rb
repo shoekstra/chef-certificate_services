@@ -10,9 +10,23 @@
 require 'spec_helper'
 
 describe 'certificate_services::pspki' do
+  context 'when using Chef client < 12.8.1' do
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(file_cache_path: '/Chef/cache') do |node|
+        node.automatic['chef_packages']['chef']['version'] = '12.6.0'
+      end.converge(described_recipe)
+    end
+
+    it 'should raise an exception' do
+      expect { chef_run }.to raise_error(RuntimeError, "Cannot use certificate_services::pspki recipe with this version of Chef client; please use 12.8.1 or later.")
+    end
+  end
+
   context 'when all attributes are default' do
     let(:chef_run) do
-      ChefSpec::SoloRunner.new(file_cache_path: '/Chef/cache').converge(described_recipe)
+      ChefSpec::SoloRunner.new(file_cache_path: '/Chef/cache') do |node|
+        node.automatic['chef_packages']['chef']['version'] = '12.8.1'
+      end.converge(described_recipe)
     end
 
     it 'converge successfully' do
@@ -46,6 +60,7 @@ describe 'certificate_services::pspki' do
   context 'when custom values are specified' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(file_cache_path: '/Chef/cache') do |node|
+        node.automatic['chef_packages']['chef']['version'] = '12.8.1'
         node.set['certificate_services']['pscx']['package_name']  = 'pscx package name'
         node.set['certificate_services']['pscx']['source_url']    = 'http://test'
         node.set['certificate_services']['pspki']['package_name'] = 'pspki package name'

@@ -7,6 +7,8 @@
 # Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
 #
 
+raise(RuntimeError, "Cannot use certificate_services::pspki recipe with this version of Chef client; please use 12.8.1 or later.") unless Gem::Version.new(node['chef_packages']['chef']['version']) >= Gem::Version.new('12.8.1')
+
 remote_file "#{Chef::Config['file_cache_path']}/pscx.msi" do
   source node['certificate_services']['pscx']['source_url']
 end
