@@ -179,7 +179,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }',
         'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
         'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
-        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -Force'
+        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force'
       ].join('; ')
     end
 

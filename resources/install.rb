@@ -189,11 +189,12 @@ action :create do
   if new_resource.type == 'StandaloneRootCA'
     cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force'
     cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8.crl -PublishToServer -Force"
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
   elsif new_resource.type == 'EnterpriseSubordinateCA'
     cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
     cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force"
+    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -AddToFreshestCrl -Force" unless new_resource.cdp_url.nil?
   end
-  cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
 
   aia_code = []
   aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
