@@ -25,5 +25,5 @@ end
 package node['certificate_services']['pspki']['package_name'] do
   source "#{Chef::Config['file_cache_path']}/pspki.exe"
   installer_type :custom
-  options '/quiet'
+  options 'addlocal=all /qn'
 end

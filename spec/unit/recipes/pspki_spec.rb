@@ -52,7 +52,7 @@ describe 'certificate_services::pspki' do
       expect(chef_run).to install_package('PowerShell PKI Module').with(
         source: '/Chef/cache/pspki.exe',
         installer_type: :custom,
-        options: '/quiet'
+        options: 'addlocal=all /qn'
       )
     end
   end
@@ -91,7 +91,7 @@ describe 'certificate_services::pspki' do
       expect(chef_run).to install_package('pspki package name').with(
         source: '/Chef/cache/pspki.exe',
         installer_type: :custom,
-        options: '/quiet'
+        options: 'addlocal=all /qn'
       )
     end
   end
