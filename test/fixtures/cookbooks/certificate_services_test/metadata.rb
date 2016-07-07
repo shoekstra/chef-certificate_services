@@ -2,4 +2,4 @@ name 'certificate_services_test'
 version '0.0.1'
 
 depends 'windows'
-depends 'windows_ad', '= 0.4.4'
+depends 'windows_ad'

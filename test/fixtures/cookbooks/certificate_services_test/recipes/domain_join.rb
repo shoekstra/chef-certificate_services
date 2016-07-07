@@ -12,10 +12,11 @@ powershell_script 'Set DNS resolver' do
   not_if '(Get-DnsClientServerAddress | ?{$_.InterfaceAlias -eq "Ethernet 2" -and $_.Address -ne ""}).ServerAddresses -eq "192.168.10.10")'
 end
 
-windows_ad_domain 'CONTOSO' do
+windows_ad_computer node['hostname'] do
   action :join
   domain_pass 'Passw0rd!'
   domain_user 'Administrator'
+  domain_name 'contoso.com'
   restart false
 end
 
