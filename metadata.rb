@@ -12,4 +12,5 @@ recipe           'certificate_services::standalone_root_ca', 'Installs and confi
 supports         'windows', '= 6.3'
 
 depends 'iis', '~> 4.1.6'
+depends 'pspki'
 depends 'windows', '= 1.38.2'
