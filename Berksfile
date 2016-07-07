@@ -1,5 +1,4 @@
 source 'https://supermarket.getchef.com'
-source 'https://supermarket.schubergphilis.com'
 
 metadata
 
