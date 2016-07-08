@@ -19,7 +19,7 @@ describe 'certificate_services::crl_distribution_point' do
 
     before do
       stub_command('Get-SmbShare -Name CDP').and_return(false)
-      stub_search("node", "(chef_environment:_default AND recipe:certificate_services\\:\\:enterprise_subordinate_ca)").and_return([{"hostname"=>"subca1"}, {"hostname"=>"subca2"}])
+      stub_search("node", "(chef_environment:_default AND recipes:certificate_services\\:\\:enterprise_subordinate_ca)").and_return([{"hostname"=>"subca1"}, {"hostname"=>"subca2"}])
     end
 
     it 'should converge successfully' do
