@@ -26,6 +26,9 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
   end
 
   let(:template_vars_capolicy) do
+    template_var_enhanced_key_usage = attributes[:enhanced_key_usage]
+    template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
+
     {
       alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
       clock_skew_minutes: attributes[:clock_skew_minutes],
@@ -34,6 +37,7 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
       enable_key_counting: attributes[:enable_key_counting],
+      enhanced_key_usage: template_var_enhanced_key_usage,
       force_utf8: attributes[:force_utf8],
       load_default_templates: attributes[:load_default_templates],
       renewal_key_length: attributes[:renewal_key_length],
@@ -136,6 +140,9 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
   end
 
   let(:template_vars_capolicy) do
+    template_var_enhanced_key_usage = attributes[:enhanced_key_usage]
+    template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
+
     {
       alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
       clock_skew_minutes: attributes[:clock_skew_minutes],
@@ -144,6 +151,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
       enable_key_counting: attributes[:enable_key_counting],
+      enhanced_key_usage: template_var_enhanced_key_usage,
       force_utf8: attributes[:force_utf8],
       load_default_templates: attributes[:load_default_templates],
       renewal_key_length: attributes[:renewal_key_length],
@@ -243,6 +251,9 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
   end
 
   let(:template_vars_capolicy) do
+    template_var_enhanced_key_usage = attributes[:enhanced_key_usage]
+    template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
+
     {
       alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
       clock_skew_minutes: attributes[:clock_skew_minutes],
@@ -251,6 +262,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
       enable_key_counting: attributes[:enable_key_counting],
+      enhanced_key_usage: template_var_enhanced_key_usage,
       force_utf8: attributes[:force_utf8],
       load_default_templates: attributes[:load_default_templates],
       renewal_key_length: attributes[:renewal_key_length],
@@ -356,6 +368,9 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
   end
 
   let(:template_vars_capolicy) do
+    template_var_enhanced_key_usage = attributes[:enhanced_key_usage]
+    template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
+
     {
      alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
       clock_skew_minutes: attributes[:clock_skew_minutes],
@@ -364,6 +379,7 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
       enable_key_counting: attributes[:enable_key_counting],
+      enhanced_key_usage: template_var_enhanced_key_usage,
       force_utf8: attributes[:force_utf8],
       load_default_templates: attributes[:load_default_templates],
       renewal_key_length: attributes[:renewal_key_length],
@@ -520,6 +536,9 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
   end
 
   let(:template_vars_capolicy) do
+    template_var_enhanced_key_usage = attributes[:enhanced_key_usage]
+    template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
+
     {
       alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
       clock_skew_minutes: attributes[:clock_skew_minutes],
@@ -528,6 +547,7 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
       enable_key_counting: attributes[:enable_key_counting],
+      enhanced_key_usage: template_var_enhanced_key_usage,
       force_utf8: attributes[:force_utf8],
       load_default_templates: attributes[:load_default_templates],
       renewal_key_length: attributes[:renewal_key_length],

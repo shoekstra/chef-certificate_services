@@ -29,6 +29,7 @@ default['certificate_services']['standalone_root_ca']['database_directory']     
 default['certificate_services']['standalone_root_ca']['enable_auditing_eventlogs']              = true
 default['certificate_services']['standalone_root_ca']['enable_key_counting']                    = false
 default['certificate_services']['standalone_root_ca']['enforce_x500_name_lengths']              = false  ##
+default['certificate_services']['standalone_root_ca']['enhanced_key_usage']                     = nil
 default['certificate_services']['standalone_root_ca']['force_utf8']                             = false
 default['certificate_services']['standalone_root_ca']['hash_algorithm']                         = 'SHA256'
 default['certificate_services']['standalone_root_ca']['key_length']                             = 4096
@@ -72,6 +73,7 @@ default['certificate_services']['enterprise_subordinate_ca']['domain_user']     
 default['certificate_services']['enterprise_subordinate_ca']['enable_auditing_eventlogs']       = true
 default['certificate_services']['enterprise_subordinate_ca']['enable_key_counting']             = false
 default['certificate_services']['enterprise_subordinate_ca']['enforce_x500_name_lengths']       = false ##
+default['certificate_services']['enterprise_subordinate_ca']['enhanced_key_usage']              = nil
 default['certificate_services']['enterprise_subordinate_ca']['force_utf8']                      = false
 default['certificate_services']['enterprise_subordinate_ca']['hash_algorithm']                  = 'SHA256'
 default['certificate_services']['enterprise_subordinate_ca']['install_cert_file']               = "#{node['fqdn']}_#{node['domain'].split('.')[0]}-#{node['hostname']}-CA.crt" if node['domain']

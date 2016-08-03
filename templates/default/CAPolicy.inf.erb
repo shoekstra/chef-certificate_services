@@ -15,6 +15,14 @@ URL=<%= e.last['url'] %>
 <%- end -%>
 <%- end -%>
 <%- end -%>
+<%- if @enhanced_key_usage -%>
+[EnhancedKeyUsageExtension]
+<%- @enhanced_key_usage.each do |oid| -%>
+OID=<%= oid %>
+<%- end -%>
+Critical=No
+
+<%- end -%>
 [Certsrv_Server]
 RenewalKeyLength=<%= @renewal_key_length %>
 RenewalValidityPeriod=<%= @renewal_validity_period.downcase.capitalize %>

@@ -41,6 +41,7 @@ certificate_services_install 'EnterpriseSubordinateCA' do
   domain_pass caconfig['domain_pass'] if caconfig['domain_pass']
   domain_user caconfig['domain_user'] if caconfig['domain_user']
   enable_key_counting caconfig['enable_key_counting'] if caconfig['enable_key_counting']
+  enhanced_key_usage caconfig['enhanced_key_usage'] if caconfig['enhanced_key_usage']
   force_utf8 caconfig['force_utf8'] if caconfig['force_utf8']
   hash_algorithm caconfig['hash_algorithm'] if caconfig['hash_algorithm']
   install_cert_file caconfig['install_cert_file'] if caconfig['install_cert_file']

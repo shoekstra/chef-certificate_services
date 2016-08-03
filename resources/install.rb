@@ -39,6 +39,7 @@ property :domain_pass,                     kind_of: String,                  req
 property :domain_user,                     kind_of: String,                  required: false
 property :enable_auditing_eventlogs,       kind_of: [TrueClass, FalseClass], required: true, default: true
 property :enable_key_counting,             kind_of: [TrueClass, FalseClass], required: true, default: false
+property :enhanced_key_usage,              kind_of: [Array, String],         required: false, default: nil
 property :force_utf8,                      kind_of: [TrueClass, FalseClass], required: true, default: false
 property :hash_algorithm,                  kind_of: String,                  required: true, default: 'SHA256'
 property :install_cert_file,               kind_of: String,                  required: false
@@ -70,6 +71,9 @@ action :create do
   #
   # Create CAPolicy.inf template
   #
+  enhanced_key_usage = new_resource.enhanced_key_usage
+  enhanced_key_usage = Array(enhanced_key_usage) unless enhanced_key_usage.nil?
+
   policy = new_resource.policy
   policy = [policy] if policy.is_a?(Hash)
 
@@ -86,6 +90,7 @@ action :create do
       crl_period: new_resource.crl_period,
       crl_period_units: new_resource.crl_period_units,
       enable_key_counting: new_resource.enable_key_counting,
+      enhanced_key_usage: enhanced_key_usage,
       force_utf8: new_resource.force_utf8,
       load_default_templates: new_resource.load_default_templates,
       policy: policy,

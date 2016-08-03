@@ -84,6 +84,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       enable_auditing_eventlogs: true,
       enable_key_counting: false,
       # enforce_x500_name_lengths:,
+      enhanced_key_usage: nil,
       force_utf8: false,
       hash_algorithm: 'SHA256',
       install_cert_file: 'SUBCA.contoso.com_CONTOSO-SUBCA-CA.crt',
@@ -256,6 +257,106 @@ describe 'certificate_services::enterprise_subordinate_ca' do
 
     describe 'and the Certificate Authority is installed and is not configured' do
       it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "enhanced_key_usage" attribute contains a single OID' do
+    let(:attributes) do
+      default_attributes.merge(
+        enhanced_key_usage: '1.1.1.1.1.1.1.1'
+      )
+    end
+
+    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+        [Version]
+        Signature="$Windows NT$"
+
+        [EnhancedKeyUsageExtension]
+        OID=1.1.1.1.1.1.1.1
+        Critical=No
+
+        [Certsrv_Server]
+        RenewalKeyLength=4096
+        RenewalValidityPeriod=Years
+        RenewalValidityPeriodUnits=5
+        CRLPeriod=Weeks
+        CRLPeriodUnits=2
+        CRLDeltaPeriod=Days
+        CRLDeltaPeriodUnits=1
+        ClockSkewMinutes=10
+        LoadDefaultTemplates=0
+        AlternateSignatureAlgorithm=1
+        ForceUTF8=0
+        EnableKeyCounting=0
+      EOF
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['enhanced_key_usage'] = '1.1.1.1.1.1.1.1'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "enhanced_key_usage" attribute contains an array of OIDs' do
+    let(:attributes) do
+      default_attributes.merge(
+        enhanced_key_usage: ['1.1.1.1.1.1.1.1', '1.1.1.1.1.1.1.2', '1.1.1.1.1.1.1.3']
+      )
+    end
+
+    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+        [Version]
+        Signature="$Windows NT$"
+
+        [EnhancedKeyUsageExtension]
+        OID=1.1.1.1.1.1.1.1
+        OID=1.1.1.1.1.1.1.2
+        OID=1.1.1.1.1.1.1.3
+        Critical=No
+
+        [Certsrv_Server]
+        RenewalKeyLength=4096
+        RenewalValidityPeriod=Years
+        RenewalValidityPeriodUnits=5
+        CRLPeriod=Weeks
+        CRLPeriodUnits=2
+        CRLDeltaPeriod=Days
+        CRLDeltaPeriodUnits=1
+        ClockSkewMinutes=10
+        LoadDefaultTemplates=0
+        AlternateSignatureAlgorithm=1
+        ForceUTF8=0
+        EnableKeyCounting=0
+      EOF
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.set['certificate_services']['enterprise_subordinate_ca']['enhanced_key_usage'] = ['1.1.1.1.1.1.1.1', '1.1.1.1.1.1.1.2', '1.1.1.1.1.1.1.3']
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do

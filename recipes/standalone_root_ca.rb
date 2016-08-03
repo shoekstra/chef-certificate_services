@@ -41,6 +41,7 @@ certificate_services_install 'StandaloneRootCA' do
   database_directory caconfig['database_directory'] if caconfig['database_directory']
   enable_auditing_eventlogs caconfig['enable_auditing_eventlogs'] if caconfig['enable_auditing_eventlogs']
   enable_key_counting caconfig['enable_key_counting'] if caconfig['enable_key_counting']
+  enhanced_key_usage caconfig['enhanced_key_usage'] if caconfig['enhanced_key_usage']
   force_utf8 caconfig['force_utf8'] if caconfig['force_utf8']
   load_default_templates caconfig['load_default_templates'] if caconfig['load_default_templates']
   log_directory caconfig['log_directory'] if caconfig['log_directory']
