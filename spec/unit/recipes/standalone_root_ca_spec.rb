@@ -131,7 +131,7 @@ describe 'certificate_services::standalone_root_ca' do
     end
   end
 
-  describe 'when "aia_url" attribute is set to "http://pki.contoso.com/cdp/%3.crt"' do
+  describe 'when "aia_url" attribute is set to a single URL' do
     let(:attributes) do
       default_attributes.merge(aia_url: 'http://pki.contoso.com/cdp/%3.crt')
     end
@@ -159,7 +159,36 @@ describe 'certificate_services::standalone_root_ca' do
     end
   end
 
-  describe 'when "cdp_url" attribute is set to "http://pki.contoso.com/cdp/%3%8.crl"' do
+  describe 'when "aia_url" attribute is set to an array of URLs' do
+    let(:attributes) do
+      default_attributes.merge(aia_url: ['http://pki.contoso.com/cdp/%3.crt', 'http://pki2.contoso.com/cdp/%3.crt'])
+    end
+
+    let(:code_configure_aia) do
+      [
+        'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
+        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3.crt -AddToCertificateAia -Force',
+        'Add-CAAuthorityInformationAccess -Uri http://pki2.contoso.com/cdp/%3.crt -AddToCertificateAia -Force'
+      ].join('; ')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['aia_url'] = ['http://pki.contoso.com/cdp/%3.crt', 'http://pki2.contoso.com/cdp/%3.crt']
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
+    end
+  end
+
+  describe 'when "cdp_url" attribute is set to a single URL' do
     let(:attributes) do
       default_attributes.merge(cdp_url: 'http://pki.contoso.com/cdp/%3%8.crl')
     end
@@ -177,6 +206,37 @@ describe 'certificate_services::standalone_root_ca' do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
         node.set['certificate_services']['standalone_root_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8.crl'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
+    end
+  end
+
+  describe 'when "cdp_url" attribute is set to an array of URLs' do
+    let(:attributes) do
+      default_attributes.merge(cdp_url: ['http://pki.contoso.com/cdp/%3%8.crl', 'http://pki2.contoso.com/cdp/%3%8.crl'])
+    end
+
+    let(:code_configure_cdp) do
+      [
+        'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }',
+        'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force',
+        'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8.crl -PublishToServer -Force',
+        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8.crl -AddToCertificateCDP -Force',
+        'Add-CACrlDistributionPoint -Uri http://pki2.contoso.com/cdp/%3%8.crl -AddToCertificateCDP -Force'
+      ].join('; ')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.set['certificate_services']['standalone_root_ca']['cdp_url'] = ['http://pki.contoso.com/cdp/%3%8.crl', 'http://pki2.contoso.com/cdp/%3%8.crl']
       end.converge(described_recipe)
     end
 
