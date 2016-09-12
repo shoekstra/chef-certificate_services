@@ -52,7 +52,7 @@ describe 'certificate_services::standalone_root_ca' do
       [Certsrv_Server]
       RenewalKeyLength=4096
       RenewalValidityPeriod=Years
-      RenewalValidityPeriodUnits=20
+      RenewalValidityPeriodUnits=10
       CRLPeriod=Weeks
       CRLPeriodUnits=26
       CRLDeltaPeriod=Days
@@ -103,9 +103,9 @@ describe 'certificate_services::standalone_root_ca' do
       policy: nil,
       renewal_key_length: 4096,
       renewal_validity_period: 'years',
-      renewal_validity_period_units: 20,
+      renewal_validity_period_units: 10,
       validity_period: 'years',
-      validity_period_units: 10,
+      validity_period_units: 5,
       windows_domain: nil,
     }
   end
@@ -313,7 +313,7 @@ describe 'certificate_services::standalone_root_ca' do
         [Certsrv_Server]
         RenewalKeyLength=4096
         RenewalValidityPeriod=Years
-        RenewalValidityPeriodUnits=20
+        RenewalValidityPeriodUnits=10
         CRLPeriod=Weeks
         CRLPeriodUnits=26
         CRLDeltaPeriod=Days
@@ -362,7 +362,7 @@ describe 'certificate_services::standalone_root_ca' do
         [Certsrv_Server]
         RenewalKeyLength=4096
         RenewalValidityPeriod=Years
-        RenewalValidityPeriodUnits=20
+        RenewalValidityPeriodUnits=10
         CRLPeriod=Weeks
         CRLPeriodUnits=26
         CRLDeltaPeriod=Days
@@ -419,7 +419,7 @@ describe 'certificate_services::standalone_root_ca' do
         [Certsrv_Server]
         RenewalKeyLength=4096
         RenewalValidityPeriod=Years
-        RenewalValidityPeriodUnits=20
+        RenewalValidityPeriodUnits=10
         CRLPeriod=Weeks
         CRLPeriodUnits=26
         CRLDeltaPeriod=Days
@@ -488,7 +488,7 @@ describe 'certificate_services::standalone_root_ca' do
         [Certsrv_Server]
         RenewalKeyLength=4096
         RenewalValidityPeriod=Years
-        RenewalValidityPeriodUnits=20
+        RenewalValidityPeriodUnits=10
         CRLPeriod=Weeks
         CRLPeriodUnits=26
         CRLDeltaPeriod=Days
