@@ -146,7 +146,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3.crt'
+        node.normal['certificate_services']['standalone_root_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3.crt'
       end.converge(described_recipe)
     end
 
@@ -175,7 +175,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['aia_url'] = ['http://pki.contoso.com/cdp/%3.crt', 'http://pki2.contoso.com/cdp/%3.crt']
+        node.normal['certificate_services']['standalone_root_ca']['aia_url'] = ['http://pki.contoso.com/cdp/%3.crt', 'http://pki2.contoso.com/cdp/%3.crt']
       end.converge(described_recipe)
     end
 
@@ -205,7 +205,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8.crl'
+        node.normal['certificate_services']['standalone_root_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8.crl'
       end.converge(described_recipe)
     end
 
@@ -236,7 +236,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['cdp_url'] = ['http://pki.contoso.com/cdp/%3%8.crl', 'http://pki2.contoso.com/cdp/%3%8.crl']
+        node.normal['certificate_services']['standalone_root_ca']['cdp_url'] = ['http://pki.contoso.com/cdp/%3%8.crl', 'http://pki2.contoso.com/cdp/%3%8.crl']
       end.converge(described_recipe)
     end
 
@@ -257,7 +257,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['common_name'] = 'STANDALONE_ROOTCA'
+        node.normal['certificate_services']['standalone_root_ca']['common_name'] = 'STANDALONE_ROOTCA'
       end.converge(described_recipe)
     end
 
@@ -281,8 +281,8 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['database_directory'] = 'C:\Test'
-        node.set['certificate_services']['standalone_root_ca']['log_directory'] = 'C:\Test'
+        node.normal['certificate_services']['standalone_root_ca']['database_directory'] = 'C:\Test'
+        node.normal['certificate_services']['standalone_root_ca']['log_directory'] = 'C:\Test'
       end.converge(described_recipe)
     end
 
@@ -329,7 +329,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['enhanced_key_usage'] = '1.1.1.1.1.1.1.1'
+        node.normal['certificate_services']['standalone_root_ca']['enhanced_key_usage'] = '1.1.1.1.1.1.1.1'
       end.converge(described_recipe)
     end
 
@@ -378,7 +378,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['enhanced_key_usage'] = ['1.1.1.1.1.1.1.1', '1.1.1.1.1.1.1.2', '1.1.1.1.1.1.1.3']
+        node.normal['certificate_services']['standalone_root_ca']['enhanced_key_usage'] = ['1.1.1.1.1.1.1.1', '1.1.1.1.1.1.1.2', '1.1.1.1.1.1.1.3']
       end.converge(described_recipe)
     end
 
@@ -435,9 +435,9 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
       end.converge(described_recipe)
     end
 
@@ -504,12 +504,12 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
-        node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-        node.set['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
-        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-        node.set['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.normal['certificate_services']['standalone_root_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
       end.converge(described_recipe)
     end
 
@@ -528,7 +528,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:chef_run) do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
-        node.set['certificate_services']['standalone_root_ca']['windows_domain'] = 'contoso.com'
+        node.normal['certificate_services']['standalone_root_ca']['windows_domain'] = 'contoso.com'
       end.converge(described_recipe)
     end
 

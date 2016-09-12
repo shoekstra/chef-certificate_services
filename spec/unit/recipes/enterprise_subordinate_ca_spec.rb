@@ -153,7 +153,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3%4.crt'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3%4.crt'
       end.converge(described_recipe)
     end
 
@@ -189,7 +189,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8%9.crl'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8%9.crl'
       end.converge(described_recipe)
     end
 
@@ -216,7 +216,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['common_name'] = 'ENTERPRISE_ISSUINGCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['common_name'] = 'ENTERPRISE_ISSUINGCA'
       end.converge(described_recipe)
     end
 
@@ -246,8 +246,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['database_directory'] = 'C:\Test'
-        node.set['certificate_services']['enterprise_subordinate_ca']['log_directory'] = 'C:\Test'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['database_directory'] = 'C:\Test'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['log_directory'] = 'C:\Test'
       end.converge(described_recipe)
     end
 
@@ -300,7 +300,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['enhanced_key_usage'] = '1.1.1.1.1.1.1.1'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['enhanced_key_usage'] = '1.1.1.1.1.1.1.1'
       end.converge(described_recipe)
     end
 
@@ -351,7 +351,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['enhanced_key_usage'] = ['1.1.1.1.1.1.1.1', '1.1.1.1.1.1.1.2', '1.1.1.1.1.1.1.3']
+        node.normal['certificate_services']['enterprise_subordinate_ca']['enhanced_key_usage'] = ['1.1.1.1.1.1.1.1', '1.1.1.1.1.1.1.2', '1.1.1.1.1.1.1.3']
       end.converge(described_recipe)
     end
 
@@ -381,7 +381,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['ocsp_url'] = 'http://pki.contoso.com/ocsp'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['ocsp_url'] = 'http://pki.contoso.com/ocsp'
       end.converge(described_recipe)
     end
 
@@ -412,9 +412,9 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_ca_in_ds'] = true
-        node.set['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_database'] = true
-        node.set['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_key'] = true
+        node.normal['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_ca_in_ds'] = true
+        node.normal['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_database'] = true
+        node.normal['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_key'] = true
       end.converge(described_recipe)
     end
 
@@ -477,9 +477,9 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
       end.converge(described_recipe)
     end
 
@@ -552,12 +552,12 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
-        node.set['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['notice'] = 'Internal Policy Statement'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['InternalPolicy']['url'] = 'http://pki/pki/internal.txt'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
       end.converge(described_recipe)
     end
 
