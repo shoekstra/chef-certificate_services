@@ -215,12 +215,6 @@ Attributes in this cookbook:
     <td><tt>nil</tt></td>
   </tr>
   <tr>
-    <td><tt>['certificate_services']['enterprise_subordinate_ca']['output_cert_request_file']</tt></td>
-    <td>String</td>
-    <td>Some info about the attribute</td>
-    <td><tt>nil</tt></td>
-  </tr>
-  <tr>
     <td><tt>['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_ca_in_ds']</tt></td>
     <td>String</td>
     <td>Some info about the attribute</td>
@@ -414,12 +408,6 @@ Attributes in this cookbook:
   </tr>
   <tr>
     <td><tt>['certificate_services']['standalone_root_ca']['ocsp_url']</tt></td>
-    <td>String</td>
-    <td>Some info about the attribute</td>
-    <td><tt>nil</tt></td>
-  </tr>
-  <tr>
-    <td><tt>['certificate_services']['standalone_root_ca']['output_cert_request_file']</tt></td>
     <td>String</td>
     <td>Some info about the attribute</td>
     <td><tt>nil</tt></td>

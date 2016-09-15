@@ -10,22 +10,13 @@
 ::Chef::Resource::Batch.send(:include, CertificateServices::Helper)
 ::Chef::Resource::PowershellScript.send(:include, CertificateServices::Helper)
 
-caconfig = node['certificate_services']['standalone_root_ca'] if node['certificate_services']['standalone_root_ca']
+caconfig = node['certificate_services']['standalone_root_ca']
 
 #
 # Install and configure the Certificate Authority
 #
 certificate_services_install 'StandaloneRootCA' do
   # allow_administrator_interaction caconfig['allow_administrator_interaction'] if caconfig['allow_administrator_interaction']
-  # alternate_signature_algorithm caconfig['alternate_signature_algorithm'] if caconfig['alternate_signature_algorithm']
-  # crl_delta_overlap_period caconfig['crl_delta_overlap_period'] if caconfig['crl_delta_overlap_period']
-  # crl_delta_overlap_units caconfig['crl_delta_overlap_units'] if caconfig['crl_delta_overlap_units']
-  # crypto_provider caconfig['crypto_provider'] if caconfig['crypto_provider']
-  # enforce_x500_name_lengths caconfig['enforce_x500_name_lengths'] if caconfig['enforce_x500_name_lengths']
-  # hash_algorithm caconfig['hash_algorithm'] if caconfig['hash_algorithm']
-  # key_length caconfig['key_length'] if caconfig['key_length']
-  # log_level caconfig['log_level'] if caconfig['log_level']
-  # output_cert_request_file caconfig['output_cert_request_file'] if caconfig['output_cert_request_file']
   aia_url caconfig['aia_url'] if caconfig['aia_url']
   alternate_signature_algorithm caconfig['alternate_signature_algorithm'] if caconfig['alternate_signature_algorithm']
   caconfig_dir caconfig['caconfig_dir'] if caconfig['caconfig_dir']
@@ -38,11 +29,14 @@ certificate_services_install 'StandaloneRootCA' do
   crl_overlap_units caconfig['crl_overlap_units'] if caconfig['crl_overlap_units']
   crl_period caconfig['crl_period'] if caconfig['crl_period']
   crl_period_units caconfig['crl_period_units'] if caconfig['crl_period_units']
+  crypto_provider caconfig['crypto_provider'] if caconfig['crypto_provider']
   database_directory caconfig['database_directory'] if caconfig['database_directory']
   enable_auditing_eventlogs caconfig['enable_auditing_eventlogs'] if caconfig['enable_auditing_eventlogs']
   enable_key_counting caconfig['enable_key_counting'] if caconfig['enable_key_counting']
   enhanced_key_usage caconfig['enhanced_key_usage'] if caconfig['enhanced_key_usage']
   force_utf8 caconfig['force_utf8'] if caconfig['force_utf8']
+  hash_algorithm caconfig['hash_algorithm'] if caconfig['hash_algorithm']
+  key_length caconfig['key_length'] if caconfig['key_length']
   load_default_templates caconfig['load_default_templates'] if caconfig['load_default_templates']
   log_directory caconfig['log_directory'] if caconfig['log_directory']
   overwrite_existing_ca_in_ds caconfig['overwrite_existing_ca_in_ds'] if caconfig['overwrite_existing_ca_in_ds']

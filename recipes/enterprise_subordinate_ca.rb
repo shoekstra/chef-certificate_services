@@ -10,22 +10,13 @@
 ::Chef::Resource::Batch.send(:include, CertificateServices::Helper)
 ::Chef::Resource::PowershellScript.send(:include, CertificateServices::Helper)
 
-caconfig = node['certificate_services']['enterprise_subordinate_ca'] if node['certificate_services']['enterprise_subordinate_ca']
+caconfig = node['certificate_services']['enterprise_subordinate_ca']
 
 #
 # Install and configure the Certificate Authority
 #
 certificate_services_install 'EnterpriseSubordinateCA' do
   # allow_administrator_interaction caconfig['allow_administrator_interaction'] if caconfig['allow_administrator_interaction']
-  # crl_delta_overlap_period caconfig['crl_delta_overlap_period'] if caconfig['crl_delta_overlap_period']
-  # crl_delta_overlap_units caconfig['crl_delta_overlap_units'] if caconfig['crl_delta_overlap_units']
-  # crl_overlap_period caconfig['crl_overlap_period'] if caconfig['crl_overlap_period']
-  # crl_overlap_units caconfig['crl_overlap_units'] if caconfig['crl_overlap_units']
-  # enable_auditing_eventlogs caconfig['enable_auditing_eventlogs'] if caconfig['enable_auditing_eventlogs']
-  # enforce_x500_name_lengths caconfig['enforce_x500_name_lengths'] if caconfig['enforce_x500_name_lengths']
-  # log_level caconfig['log_level'] if caconfig['log_level']
-  # output_cert_request_file caconfig['output_cert_request_file'] if caconfig['output_cert_request_file']
-  # url caconfig['url'] if caconfig['url']
   aia_url caconfig['aia_url'] if caconfig['aia_url']
   alternate_signature_algorithm caconfig['alternate_signature_algorithm'] if caconfig['alternate_signature_algorithm']
   caconfig_dir caconfig['caconfig_dir'] if caconfig['caconfig_dir']
@@ -34,12 +25,15 @@ certificate_services_install 'EnterpriseSubordinateCA' do
   common_name caconfig['common_name'] if caconfig['common_name']
   crl_delta_period caconfig['crl_delta_period'] if caconfig['crl_delta_period']
   crl_delta_period_units caconfig['crl_delta_period_units'] if caconfig['crl_delta_period_units']
+  crl_overlap_period caconfig['crl_overlap_period'] if caconfig['crl_overlap_period']
+  crl_overlap_units caconfig['crl_overlap_units'] if caconfig['crl_overlap_units']
   crl_period caconfig['crl_period'] if caconfig['crl_period']
   crl_period_units caconfig['crl_period_units'] if caconfig['crl_period_units']
   crypto_provider caconfig['crypto_provider'] if caconfig['crypto_provider']
   database_directory caconfig['database_directory'] if caconfig['database_directory']
   domain_pass caconfig['domain_pass'] if caconfig['domain_pass']
   domain_user caconfig['domain_user'] if caconfig['domain_user']
+  enable_auditing_eventlogs caconfig['enable_auditing_eventlogs'] if caconfig['enable_auditing_eventlogs']
   enable_key_counting caconfig['enable_key_counting'] if caconfig['enable_key_counting']
   enhanced_key_usage caconfig['enhanced_key_usage'] if caconfig['enhanced_key_usage']
   force_utf8 caconfig['force_utf8'] if caconfig['force_utf8']

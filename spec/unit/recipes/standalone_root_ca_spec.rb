@@ -75,8 +75,6 @@ describe 'certificate_services::standalone_root_ca' do
       cdp_url: nil,
       clock_skew_minutes: 10,
       common_name: nil,
-      # crl_delta_overlap_period:,
-      # crl_delta_overlap_units:,
       crl_delta_period: 'days',
       crl_delta_period_units: 0,
       crl_overlap_period: 'hours',
@@ -89,7 +87,6 @@ describe 'certificate_services::standalone_root_ca' do
       domain_user: nil,
       enable_auditing_eventlogs: true,
       enable_key_counting: false,
-      # enforce_x500_name_lengths:,
       enhanced_key_usage: nil,
       force_utf8: false,
       hash_algorithm: 'SHA256',
@@ -97,7 +94,6 @@ describe 'certificate_services::standalone_root_ca' do
       load_default_templates: false,
       # log_level:,
       log_directory: 'C:\Windows\system32\CertLog',
-      output_cert_request_file: nil,
       overwrite_existing_ca_in_ds: false,
       overwrite_existing_database: false,
       overwrite_existing_key: false,
@@ -382,6 +378,25 @@ describe 'certificate_services::standalone_root_ca' do
       ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
         node.automatic['hostname'] = 'ROOTCA'
         node.normal['certificate_services']['standalone_root_ca']['enhanced_key_usage'] = ['1.1.1.1.1.1.1.1', '1.1.1.1.1.1.1.2', '1.1.1.1.1.1.1.3']
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
+    end
+  end
+
+  describe 'when "hash_algorithm" attribute is set to "SHA512"' do
+    let(:attributes) { default_attributes.merge!(hash_algorithm: 'SHA512') }
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.normal['certificate_services']['standalone_root_ca']['hash_algorithm'] = 'SHA512'
       end.converge(described_recipe)
     end
 

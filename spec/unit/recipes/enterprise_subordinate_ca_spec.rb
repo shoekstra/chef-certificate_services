@@ -84,7 +84,6 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       # domain_user: nil,
       enable_auditing_eventlogs: true,
       enable_key_counting: false,
-      # enforce_x500_name_lengths:,
       enhanced_key_usage: nil,
       force_utf8: false,
       hash_algorithm: 'SHA256',
@@ -94,7 +93,6 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       # log_level:,
       log_directory: 'C:\Windows\system32\CertLog',
       ocsp_url: nil,
-      # output_cert_request_file: nil,
       overwrite_existing_ca_in_ds: false,
       overwrite_existing_database: false,
       overwrite_existing_key: false,
@@ -413,6 +411,33 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     end
   end
 
+  describe 'when "key_length" attribute is set to "2048"' do
+    let(:attributes) do
+      default_attributes.merge(key_length: '2048')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['key_length'] = 2048
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
   describe 'when "ocsp_url" attribute is set to "http://pki.contoso.com/ocsp"' do
     let(:attributes) do
       default_attributes.merge(ocsp_url: 'http://pki.contoso.com/ocsp')
@@ -609,6 +634,54 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['notice'] = 'Legal Policy Statement'
         node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['oid'] = '1.2.3.4.1455.67.89.5'
         node.normal['certificate_services']['enterprise_subordinate_ca']['policy']['LegalPolicy']['url'] = 'http://pki/pki/legal.txt'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "renewal_key_length" attribute is set to "2048"' do
+    let(:attributes) do
+      default_attributes.merge(renewal_key_length: '2048')
+    end
+
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
+        [Version]
+        Signature="$Windows NT$"
+
+        [Certsrv_Server]
+        RenewalKeyLength=2048
+        RenewalValidityPeriod=Years
+        RenewalValidityPeriodUnits=5
+        CRLPeriod=Weeks
+        CRLPeriodUnits=2
+        CRLDeltaPeriod=Days
+        CRLDeltaPeriodUnits=1
+        ClockSkewMinutes=10
+        LoadDefaultTemplates=0
+        AlternateSignatureAlgorithm=0
+        ForceUTF8=0
+        EnableKeyCounting=0
+      EOF
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['renewal_key_length'] = 2048
       end.converge(described_recipe)
     end
 

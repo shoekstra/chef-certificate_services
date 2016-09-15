@@ -47,7 +47,6 @@ property :key_length,                      kind_of: [Fixnum, String],          r
 property :load_default_templates,          kind_of: [TrueClass, FalseClass],   required: true, default: false
 property :log_directory,                   kind_of: String,                    required: true, default: 'C:\Windows\system32\CertLog'
 property :ocsp_url,                        kind_of: [String, NilClass],        required: false, default: nil
-property :output_cert_request_file,        kind_of: String,                    required: false
 property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass],   required: false, default: false
 property :overwrite_existing_database,     kind_of: [TrueClass, FalseClass],   required: false, default: false
 property :overwrite_existing_key,          kind_of: [TrueClass, FalseClass],   required: false, default: false
