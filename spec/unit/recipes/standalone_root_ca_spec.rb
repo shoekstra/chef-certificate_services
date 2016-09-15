@@ -29,7 +29,7 @@ describe 'certificate_services::standalone_root_ca' do
     command = [
       'Install-AdcsCertificationAuthority',
       '-Force',
-      "-CAType StandaloneRootCA",
+      '-CAType StandaloneRootCA',
       "-CryptoProviderName '#{attributes[:crypto_provider]}'",
       "-DatabaseDirectory '#{attributes[:database_directory]}'",
       "-HashAlgorithmName #{attributes[:hash_algorithm]}",
@@ -40,12 +40,13 @@ describe 'certificate_services::standalone_root_ca' do
     command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
     command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
     command << '-OverwriteExistingKey' if attributes[:overwrite_existing_key]
-    command << "-ValidityPeriod #{attributes[:validity_period]}"
-    command << "-ValidityPeriodUnits #{attributes[:validity_period_units]}"
+    command << "-ValidityPeriod #{attributes[:renewal_validity_period]}"
+    command << "-ValidityPeriodUnits #{attributes[:renewal_validity_period_units]}"
     command.join(' ')
   end
 
-  let(:content_capolicy) do <<-EOF.gsub(/^ {6}/, '')
+  let(:content_capolicy) do
+    <<-EOF.gsub(/^ {6}/, '')
       [Version]
       Signature="$Windows NT$"
 
@@ -59,7 +60,7 @@ describe 'certificate_services::standalone_root_ca' do
       CRLDeltaPeriodUnits=0
       ClockSkewMinutes=10
       LoadDefaultTemplates=0
-      AlternateSignatureAlgorithm=1
+      AlternateSignatureAlgorithm=0
       ForceUTF8=0
       EnableKeyCounting=0
     EOF
@@ -69,7 +70,7 @@ describe 'certificate_services::standalone_root_ca' do
     {
       aia_url: nil,
       allow_administrator_interaction: false,
-      alternate_signature_algorithm: true,
+      alternate_signature_algorithm: false,
       caconfig_dir: 'C:\CAConfig',
       cdp_url: nil,
       clock_skew_minutes: 10,
@@ -106,7 +107,7 @@ describe 'certificate_services::standalone_root_ca' do
       renewal_validity_period_units: 10,
       validity_period: 'years',
       validity_period_units: 5,
-      windows_domain: nil,
+      windows_domain: nil
     }
   end
 
@@ -273,8 +274,8 @@ describe 'certificate_services::standalone_root_ca' do
   describe 'when "database_directory" and "log_directory" attributes are set to "C:\Test"' do
     let(:attributes) do
       default_attributes.merge(
-         database_directory: 'C:\Test',
-         log_directory: 'C:\Test'
+        database_directory: 'C:\Test',
+        log_directory: 'C:\Test'
       )
     end
 
@@ -302,7 +303,8 @@ describe 'certificate_services::standalone_root_ca' do
       )
     end
 
-    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -320,7 +322,7 @@ describe 'certificate_services::standalone_root_ca' do
         CRLDeltaPeriodUnits=0
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF
@@ -349,7 +351,8 @@ describe 'certificate_services::standalone_root_ca' do
       )
     end
 
-    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -369,7 +372,7 @@ describe 'certificate_services::standalone_root_ca' do
         CRLDeltaPeriodUnits=0
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF
@@ -404,7 +407,8 @@ describe 'certificate_services::standalone_root_ca' do
       )
     end
 
-    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -426,7 +430,7 @@ describe 'certificate_services::standalone_root_ca' do
         CRLDeltaPeriodUnits=0
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF
@@ -468,7 +472,8 @@ describe 'certificate_services::standalone_root_ca' do
       )
     end
 
-    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -495,7 +500,7 @@ describe 'certificate_services::standalone_root_ca' do
         CRLDeltaPeriodUnits=0
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF

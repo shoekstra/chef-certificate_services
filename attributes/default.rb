@@ -11,7 +11,7 @@
 
 default['certificate_services']['standalone_root_ca']['aia_url']                                = nil
 default['certificate_services']['standalone_root_ca']['allow_administrator_interaction']        = false
-default['certificate_services']['standalone_root_ca']['alternate_signature_algorithm']          = true
+default['certificate_services']['standalone_root_ca']['alternate_signature_algorithm']          = false
 default['certificate_services']['standalone_root_ca']['caconfig_dir']                           = 'C:\CAConfig'
 default['certificate_services']['standalone_root_ca']['cdp_url']                                = nil
 default['certificate_services']['standalone_root_ca']['clock_skew_minutes']                     = 10
@@ -44,16 +44,16 @@ default['certificate_services']['standalone_root_ca']['overwrite_existing_key'] 
 default['certificate_services']['standalone_root_ca']['policy']                                 = nil
 default['certificate_services']['standalone_root_ca']['renewal_key_length']                     = 4096
 default['certificate_services']['standalone_root_ca']['renewal_validity_period']                = 'years'
-default['certificate_services']['standalone_root_ca']['renewal_validity_period_units']          = 20
+default['certificate_services']['standalone_root_ca']['renewal_validity_period_units']          = 10
 default['certificate_services']['standalone_root_ca']['validity_period']                        = 'years'
-default['certificate_services']['standalone_root_ca']['validity_period_units']                  = 10
+default['certificate_services']['standalone_root_ca']['validity_period_units']                  = 5
 default['certificate_services']['standalone_root_ca']['windows_domain']                         = nil
 
 # Default values for an Enterprise Subordinate CA
 
 default['certificate_services']['enterprise_subordinate_ca']['aia_url']                         = nil
 default['certificate_services']['enterprise_subordinate_ca']['allow_administrator_interaction'] = false
-default['certificate_services']['enterprise_subordinate_ca']['alternate_signature_algorithm']   = true
+default['certificate_services']['enterprise_subordinate_ca']['alternate_signature_algorithm']   = false
 default['certificate_services']['enterprise_subordinate_ca']['caconfig_dir']                    = 'C:\CAConfig'
 default['certificate_services']['enterprise_subordinate_ca']['cdp_url']                         = nil
 default['certificate_services']['enterprise_subordinate_ca']['clock_skew_minutes']              = 10

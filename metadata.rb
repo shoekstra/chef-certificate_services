@@ -3,6 +3,8 @@ maintainer       'Stephen Hoekstra'
 maintainer_email 'shoekstra@schubergphilis.com'
 license          'All rights reserved'
 description      'Cookbook to install and configure Active Directory Certificate Services'
+issues_url       'https://github.schubergphilis.com/shoekstra/chef-certificate_services/issues'
+source_url       'https://github.schubergphilis.com/shoekstra/chef-certificate_services'
 version          '0.1.0'
 
 recipe           'certificate_services::crl_distribution_point', 'Installs and configures IIS with virtual directories for CDP and CPS'

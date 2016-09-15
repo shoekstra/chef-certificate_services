@@ -32,7 +32,7 @@ RenewalValidityPeriodUnits=<%= @renewal_validity_period_units %>
 <% if @crl_delta_period %>CRLDeltaPeriod=<%= @crl_delta_period.downcase.capitalize %><% end -%>
 <% if @crl_delta_period_units %>CRLDeltaPeriodUnits=<%= @crl_delta_period_units %><% end -%>
 <% if @clock_skew_minutes %>ClockSkewMinutes=<%= @clock_skew_minutes %><% end -%>
-LoadDefaultTemplates=<% if @load_default_templates %>1<% else %>0<% end -%>
-AlternateSignatureAlgorithm=<% if @alternate_signature_algorithm %>1<% else %>0<% end -%>
-ForceUTF8=<% if @force_utf8 %>1<% else %>0<% end -%>
-EnableKeyCounting=<% if @enable_key_counting %>1<% else %>0<% end -%>
+LoadDefaultTemplates=<%= @load_default_templates %>
+AlternateSignatureAlgorithm=<%= @alternate_signature_algorithm %>
+ForceUTF8=<%= @force_utf8 %>
+EnableKeyCounting=<%= @enable_key_counting %>

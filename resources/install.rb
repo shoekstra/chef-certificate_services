@@ -19,47 +19,53 @@ property :type, kind_of: String, required: true, regex: /^(EnterpriseSubordinate
 
 # CAPolicy.inf and Install-AdcsCertificationAuthority attributes
 
-property :allow_administrator_interaction, kind_of: [TrueClass, FalseClass], required: false, default: false
-property :alternate_signature_algorithm,   kind_of: [TrueClass, FalseClass], required: true, default: false
-property :aia_url,                         kind_of: [String, NilClass],      required: false, default: nil
-property :cdp_url,                         kind_of: [String, NilClass],      required: false, default: nil
-property :caconfig_dir,                    kind_of: String,                  required: true, default: 'C:\CAConfig'
-property :clock_skew_minutes,              kind_of: [Fixnum, String],        required: false
-property :common_name,                     kind_of: String,                  required: false
-property :crl_delta_period,                kind_of: String,                  required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_delta_period_units,          kind_of: [Fixnum, String],        required: false
-property :crl_overlap_period,              kind_of: String,                  required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_overlap_units,               kind_of: [Fixnum, String],        required: false
-property :crl_period,                      kind_of: String,                  required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_period_units,                kind_of: [Fixnum, String],        required: false
-property :crypto_provider,                 kind_of: String,                  required: true, default: 'RSA#Microsoft Software Key Storage Provider'
-property :database_directory,              kind_of: String,                  required: true, default: 'C:\Windows\system32\CertLog'
-property :domain,                          kind_of: String,                  required: false, default: node['domain']
-property :domain_pass,                     kind_of: String,                  required: false
-property :domain_user,                     kind_of: String,                  required: false
-property :enable_auditing_eventlogs,       kind_of: [TrueClass, FalseClass], required: true, default: true
-property :enable_key_counting,             kind_of: [TrueClass, FalseClass], required: true, default: false
-property :enhanced_key_usage,              kind_of: [Array, String],         required: false, default: nil
-property :force_utf8,                      kind_of: [TrueClass, FalseClass], required: true, default: false
-property :hash_algorithm,                  kind_of: String,                  required: true, default: 'SHA256'
-property :install_cert_file,               kind_of: String,                  required: false
-property :key_length,                      kind_of: [Fixnum, String],        required: true, default: 4096
-property :load_default_templates,          kind_of: [TrueClass, FalseClass], required: true, default: false
-property :log_directory,                   kind_of: String,                  required: true, default: 'C:\Windows\system32\CertLog'
-property :ocsp_url,                        kind_of: [String, NilClass],      required: false, default: nil
-property :output_cert_request_file,        kind_of: String,                  required: false
-property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass], required: false, default: false
-property :overwrite_existing_database,     kind_of: [TrueClass, FalseClass], required: false, default: false
-property :overwrite_existing_key,          kind_of: [TrueClass, FalseClass], required: false, default: false
-property :policy,                          kind_of: [Array, Hash, NilClass], required: false, default: nil
-property :renewal_key_length,              kind_of: [Fixnum, String],        required: true
-property :renewal_validity_period,         kind_of: String,                  required: true, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :renewal_validity_period_units,   kind_of: [Fixnum, String],        required: true
-property :root_crl_file,                   kind_of: String,                  required: false
-property :root_crt_file,                   kind_of: String,                  required: false
-property :validity_period,                 kind_of: String,                  required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :validity_period_units,           kind_of: [Fixnum, String],        required: false
-property :windows_domain,                  kind_of: String,                  required: false
+property :allow_administrator_interaction, kind_of: [TrueClass, FalseClass],   required: false, default: false
+property :alternate_signature_algorithm,   kind_of: [TrueClass, FalseClass],   required: true, default: false
+property :aia_url,                         kind_of: [Array, String, NilClass], required: false, default: nil
+property :cdp_url,                         kind_of: [Array, String, NilClass], required: false, default: nil
+property :caconfig_dir,                    kind_of: String,                    required: true, default: 'C:\CAConfig'
+property :clock_skew_minutes,              kind_of: [Fixnum, String],          required: false
+property :common_name,                     kind_of: String,                    required: false
+property :crl_delta_period,                kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_delta_period_units,          kind_of: [Fixnum, String],          required: false
+property :crl_overlap_period,              kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_overlap_units,               kind_of: [Fixnum, String],          required: false
+property :crl_period,                      kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_period_units,                kind_of: [Fixnum, String],          required: false
+property :crypto_provider,                 kind_of: String,                    required: true, default: 'RSA#Microsoft Software Key Storage Provider'
+property :database_directory,              kind_of: String,                    required: true, default: 'C:\Windows\system32\CertLog'
+property :domain,                          kind_of: String,                    required: false, default: node['domain']
+property :domain_pass,                     kind_of: String,                    required: false
+property :domain_user,                     kind_of: String,                    required: false
+property :enable_auditing_eventlogs,       kind_of: [TrueClass, FalseClass],   required: true, default: true
+property :enable_key_counting,             kind_of: [TrueClass, FalseClass],   required: true, default: false
+property :enhanced_key_usage,              kind_of: [Array, String],           required: false, default: nil
+property :force_utf8,                      kind_of: [TrueClass, FalseClass],   required: true, default: false
+property :hash_algorithm,                  kind_of: String,                    required: true, default: 'SHA256'
+property :install_cert_file,               kind_of: String,                    required: false
+property :key_length,                      kind_of: [Fixnum, String],          required: true, default: 4096
+property :load_default_templates,          kind_of: [TrueClass, FalseClass],   required: true, default: false
+property :log_directory,                   kind_of: String,                    required: true, default: 'C:\Windows\system32\CertLog'
+property :ocsp_url,                        kind_of: [String, NilClass],        required: false, default: nil
+property :output_cert_request_file,        kind_of: String,                    required: false
+property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass],   required: false, default: false
+property :overwrite_existing_database,     kind_of: [TrueClass, FalseClass],   required: false, default: false
+property :overwrite_existing_key,          kind_of: [TrueClass, FalseClass],   required: false, default: false
+property :policy,                          kind_of: [Array, Hash, NilClass],   required: false, default: nil
+property :renewal_key_length,              kind_of: [Fixnum, String],          required: true
+property :renewal_validity_period,         kind_of: String,                    required: true, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :renewal_validity_period_units,   kind_of: [Fixnum, String],          required: true
+property :root_crl_file,                   kind_of: String,                    required: false
+property :root_crt_file,                   kind_of: String,                    required: false
+property :validity_period,                 kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :validity_period_units,           kind_of: [Fixnum, String],          required: false
+property :windows_domain,                  kind_of: String,                    required: false
+
+action_class do
+  def bool_to_int(bool)
+    bool == true ? 1 : 0
+  end
+end
 
 action :create do
   #
@@ -83,16 +89,16 @@ action :create do
   template 'C:/Windows/CAPolicy.inf' do
     source 'CAPolicy.inf.erb'
     variables(
-      alternate_signature_algorithm: new_resource.alternate_signature_algorithm,
+      alternate_signature_algorithm: bool_to_int(new_resource.alternate_signature_algorithm),
       clock_skew_minutes: new_resource.clock_skew_minutes,
       crl_delta_period: new_resource.crl_delta_period,
       crl_delta_period_units: new_resource.crl_delta_period_units,
       crl_period: new_resource.crl_period,
       crl_period_units: new_resource.crl_period_units,
-      enable_key_counting: new_resource.enable_key_counting,
+      enable_key_counting: bool_to_int(new_resource.enable_key_counting),
       enhanced_key_usage: enhanced_key_usage,
-      force_utf8: new_resource.force_utf8,
-      load_default_templates: new_resource.load_default_templates,
+      force_utf8: bool_to_int(new_resource.force_utf8),
+      load_default_templates: bool_to_int(new_resource.load_default_templates),
       policy: policy,
       policy_name: policy_name,
       renewal_key_length: new_resource.renewal_key_length,
@@ -129,15 +135,15 @@ action :create do
     "-DatabaseDirectory '#{new_resource.database_directory}'",
     "-HashAlgorithmName #{new_resource.hash_algorithm}",
     "-KeyLength #{new_resource.key_length}",
-    "-LogDirectory '#{new_resource.log_directory}'",
+    "-LogDirectory '#{new_resource.log_directory}'"
   ]
 
   config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
   config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
   config_ca_cmd << '-OverwriteExistingDatabase' if new_resource.overwrite_existing_database
   config_ca_cmd << '-OverwriteExistingKey' if new_resource.overwrite_existing_key
-  config_ca_cmd << "-ValidityPeriod #{new_resource.validity_period}" if new_resource.type == 'StandaloneRootCA'
-  config_ca_cmd << "-ValidityPeriodUnits #{new_resource.validity_period_units}" if new_resource.type == 'StandaloneRootCA'
+  config_ca_cmd << "-ValidityPeriod #{new_resource.renewal_validity_period}" if new_resource.type == 'StandaloneRootCA'
+  config_ca_cmd << "-ValidityPeriodUnits #{new_resource.renewal_validity_period_units}" if new_resource.type == 'StandaloneRootCA'
 
   ruby_block 'Install ADCS Certification Authority' do
     block { powershell_out!(config_ca_cmd.join(' '), powershell_out_options) }
@@ -191,19 +197,33 @@ action :create do
   #
   cdp_code = []
   cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
+
+  cdp_urls = new_resource.cdp_url
+  cdp_urls = Array(cdp_url) unless cdp_urls.nil?
+
   if new_resource.type == 'StandaloneRootCA'
     cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force'
     cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8.crl -PublishToServer -Force"
-    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -Force" unless new_resource.cdp_url.nil?
+    cdp_urls.each do |cdp_url|
+      cdp_code << "Add-CACrlDistributionPoint -Uri #{cdp_url} -AddToCertificateCDP -Force"
+    end unless cdp_urls.nil?
   elsif new_resource.type == 'EnterpriseSubordinateCA'
     cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
     cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force"
-    cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.cdp_url} -AddToCertificateCDP -AddToFreshestCrl -Force" unless new_resource.cdp_url.nil?
+
+    cdp_urls.each do |cdp_url|
+      cdp_code << "Add-CACrlDistributionPoint -Uri #{cdp_url} -AddToCertificateCDP -AddToFreshestCrl -Force"
+    end unless cdp_urls.nil?
   end
+
+  aia_urls = new_resource.aia_url
+  aia_urls = Array(aia_url) unless aia_urls.nil?
 
   aia_code = []
   aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
-  aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.aia_url} -AddToCertificateAia -Force" unless new_resource.aia_url.nil?
+  aia_urls.each do |aia_url|
+    aia_code << "Add-CAAuthorityInformationAccess -Uri #{aia_url} -AddToCertificateAia -Force"
+  end unless aia_urls.nil?
   aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.ocsp_url} -AddToCertificateOcsp -Force" unless new_resource.ocsp_url.nil?
 
   powershell_script 'Configure CDP' do
@@ -239,6 +259,18 @@ action :create do
   unless ca_name.nil?
     registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}" do
       values registry_values
+      action :create
+      only_if { ca_configured? }
+      notifies :restart, 'windows_service[CertSvc]', :immediately
+    end
+  end
+
+  csp_registry_values = []
+  csp_registry_values << { name: 'AlternateSignatureAlgorithm', type: :dword, data: bool_to_int(new_resource.alternate_signature_algorithm) }
+
+  unless ca_name.nil?
+    registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}\\CSP" do
+      values csp_registry_values
       action :create
       only_if { ca_configured? }
       notifies :restart, 'windows_service[CertSvc]', :immediately

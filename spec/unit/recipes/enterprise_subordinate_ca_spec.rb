@@ -42,7 +42,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     command.join(' ')
   end
 
-  let(:content_capolicy) do <<-EOF.gsub(/^ {6}/, '')
+  let(:content_capolicy) do
+    <<-EOF.gsub(/^ {6}/, '')
       [Version]
       Signature="$Windows NT$"
 
@@ -56,7 +57,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       CRLDeltaPeriodUnits=1
       ClockSkewMinutes=10
       LoadDefaultTemplates=0
-      AlternateSignatureAlgorithm=1
+      AlternateSignatureAlgorithm=0
       ForceUTF8=0
       EnableKeyCounting=0
     EOF
@@ -66,7 +67,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     {
       aia_url: nil,
       # allow_administrator_interaction: false,
-      alternate_signature_algorithm: true,
+      alternate_signature_algorithm: false,
       caconfig_dir: 'C:\CAConfig',
       cdp_url: nil,
       clock_skew_minutes: 10,
@@ -129,6 +130,52 @@ describe 'certificate_services::enterprise_subordinate_ca' do
 
     describe 'and the Certificate Authority is installed and is not configured' do
       it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "alternate_signature_algorithm" attribute is set to "true"' do
+    let(:attributes) do
+      default_attributes.merge(
+        alternate_signature_algorithm: true
+      )
+    end
+
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
+        [Version]
+        Signature="$Windows NT$"
+
+        [Certsrv_Server]
+        RenewalKeyLength=4096
+        RenewalValidityPeriod=Years
+        RenewalValidityPeriodUnits=5
+        CRLPeriod=Weeks
+        CRLPeriodUnits=2
+        CRLDeltaPeriod=Days
+        CRLDeltaPeriodUnits=1
+        ClockSkewMinutes=10
+        LoadDefaultTemplates=0
+        AlternateSignatureAlgorithm=1
+        ForceUTF8=0
+        EnableKeyCounting=0
+      EOF
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['alternate_signature_algorithm'] = true
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do
@@ -236,8 +283,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
   describe 'when "database_directory" and "log_directory" attributes are set to "C:\Test"' do
     let(:attributes) do
       default_attributes.merge(
-         database_directory: 'C:\Test',
-         log_directory: 'C:\Test'
+        database_directory: 'C:\Test',
+        log_directory: 'C:\Test'
       )
     end
 
@@ -271,7 +318,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       )
     end
 
-    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -289,7 +337,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         CRLDeltaPeriodUnits=1
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF
@@ -320,7 +368,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       )
     end
 
-    let!(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let!(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -340,7 +389,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         CRLDeltaPeriodUnits=1
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF
@@ -444,7 +493,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       )
     end
 
-    let(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -466,7 +516,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         CRLDeltaPeriodUnits=1
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF
@@ -514,7 +564,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       )
     end
 
-    let(:content_capolicy) do <<-EOF.gsub(/^ {8}/, '')
+    let(:content_capolicy) do
+      <<-EOF.gsub(/^ {8}/, '')
         [Version]
         Signature="$Windows NT$"
 
@@ -541,7 +592,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         CRLDeltaPeriodUnits=1
         ClockSkewMinutes=10
         LoadDefaultTemplates=0
-        AlternateSignatureAlgorithm=1
+        AlternateSignatureAlgorithm=0
         ForceUTF8=0
         EnableKeyCounting=0
       EOF

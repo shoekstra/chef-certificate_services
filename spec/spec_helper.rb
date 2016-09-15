@@ -30,16 +30,16 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
     template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
 
     {
-      alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
+      alternate_signature_algorithm: attributes[:alternate_signature_algorithm] == true ? 1 : 0,
       clock_skew_minutes: attributes[:clock_skew_minutes],
       crl_delta_period: attributes[:crl_delta_period],
       crl_delta_period_units: attributes[:crl_delta_period_units],
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
-      enable_key_counting: attributes[:enable_key_counting],
+      enable_key_counting: attributes[:enable_key_counting] == true ? 1 : 0,
       enhanced_key_usage: template_var_enhanced_key_usage,
-      force_utf8: attributes[:force_utf8],
-      load_default_templates: attributes[:load_default_templates],
+      force_utf8: attributes[:force_utf8] == true ? 1 : 0,
+      load_default_templates: attributes[:load_default_templates] == true ? 1 : 0,
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
@@ -86,7 +86,7 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
       policy_name = []
-      attributes[:policy].each { |policy| policy_name << policy.first } unless attributes[:policy].nil?
+      attributes[:policy].each { |p| policy_name << p.first } unless attributes[:policy].nil?
 
       expect(chef_run).to create_template('C:/Windows/CAPolicy.inf').with_variables(template_vars_capolicy.merge(policy: policy, policy_name: policy_name))
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
@@ -109,6 +109,10 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
 
     it 'should not set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA' do
       expect(chef_run).to_not create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA')
+    end
+
+    it 'should not set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA\CSP' do
+      expect(chef_run).to_not create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA\CSP')
     end
 
     it 'should not enable and not start the CertSvc service' do
@@ -144,16 +148,16 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
     template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
 
     {
-      alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
+      alternate_signature_algorithm: attributes[:alternate_signature_algorithm] == true ? 1 : 0,
       clock_skew_minutes: attributes[:clock_skew_minutes],
       crl_delta_period: attributes[:crl_delta_period],
       crl_delta_period_units: attributes[:crl_delta_period_units],
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
-      enable_key_counting: attributes[:enable_key_counting],
+      enable_key_counting: attributes[:enable_key_counting] == true ? 1 : 0,
       enhanced_key_usage: template_var_enhanced_key_usage,
-      force_utf8: attributes[:force_utf8],
-      load_default_templates: attributes[:load_default_templates],
+      force_utf8: attributes[:force_utf8] == true ? 1 : 0,
+      load_default_templates: attributes[:load_default_templates] == true ? 1 : 0,
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
@@ -200,7 +204,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
       policy_name = []
-      attributes[:policy].each { |policy| policy_name << policy.first } unless attributes[:policy].nil?
+      attributes[:policy].each { |p| policy_name << p.first } unless attributes[:policy].nil?
 
       expect(chef_run).to create_template('C:/Windows/CAPolicy.inf').with_variables(template_vars_capolicy.merge(policy: policy, policy_name: policy_name))
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
@@ -223,6 +227,10 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
 
     it 'should not set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA' do
       expect(chef_run).to_not create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA')
+    end
+
+    it 'should not set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA\CSP' do
+      expect(chef_run).to_not create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA\CSP')
     end
 
     it 'should not enable and not start the CertSvc service' do
@@ -255,16 +263,16 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
     template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
 
     {
-      alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
+      alternate_signature_algorithm: attributes[:alternate_signature_algorithm] == true ? 1 : 0,
       clock_skew_minutes: attributes[:clock_skew_minutes],
       crl_delta_period: attributes[:crl_delta_period],
       crl_delta_period_units: attributes[:crl_delta_period_units],
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
-      enable_key_counting: attributes[:enable_key_counting],
+      enable_key_counting: attributes[:enable_key_counting] == true ? 1 : 0,
       enhanced_key_usage: template_var_enhanced_key_usage,
-      force_utf8: attributes[:force_utf8],
-      load_default_templates: attributes[:load_default_templates],
+      force_utf8: attributes[:force_utf8] == true ? 1 : 0,
+      load_default_templates: attributes[:load_default_templates] == true ? 1 : 0,
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
@@ -311,7 +319,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
       policy_name = []
-      attributes[:policy].each { |policy| policy_name << policy.first } unless attributes[:policy].nil?
+      attributes[:policy].each { |p| policy_name << p.first } unless attributes[:policy].nil?
 
       expect(chef_run).to create_template('C:/Windows/CAPolicy.inf').with_variables(template_vars_capolicy.merge(policy: policy, policy_name: policy_name))
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
@@ -334,6 +342,14 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
 
     it 'should set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA' do
       expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA')
+    end
+
+    it 'should set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA\CSP' do
+      expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-CA\CSP').with_values(
+        [
+          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0'))
+        ]
+      )
     end
 
     it 'should enable and start the CertSvc service' do
@@ -372,16 +388,16 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
     template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
 
     {
-     alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
+      alternate_signature_algorithm: attributes[:alternate_signature_algorithm] == true ? 1 : 0,
       clock_skew_minutes: attributes[:clock_skew_minutes],
       crl_delta_period: attributes[:crl_delta_period],
       crl_delta_period_units: attributes[:crl_delta_period_units],
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
-      enable_key_counting: attributes[:enable_key_counting],
+      enable_key_counting: attributes[:enable_key_counting] == true ? 1 : 0,
       enhanced_key_usage: template_var_enhanced_key_usage,
-      force_utf8: attributes[:force_utf8],
-      load_default_templates: attributes[:load_default_templates],
+      force_utf8: attributes[:force_utf8] == true ? 1 : 0,
+      load_default_templates: attributes[:load_default_templates] == true ? 1 : 0,
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
@@ -468,7 +484,7 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
       policy_name = []
-      attributes[:policy].each { |policy| policy_name << policy.first } unless attributes[:policy].nil?
+      attributes[:policy].each { |p| policy_name << p.first } unless attributes[:policy].nil?
 
       expect(chef_run).to create_template('C:/Windows/CAPolicy.inf').with_variables(template_vars_capolicy.merge(policy: policy, policy_name: policy_name))
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
@@ -500,9 +516,28 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
       allow(shellout_certutil_ping).to receive(:live_stream).and_return(nil)
       allow(shellout_certutil_ping).to receive(:live_stream=).and_return(nil)
 
-      registry_key_values_ca.unshift({ name: 'AuditFilter', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new('127'.to_s)) }) if attributes[:enable_auditing_eventlogs]
+      registry_key_values_ca.unshift(name: 'AuditFilter', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new('127'.to_s))) if attributes[:enable_auditing_eventlogs]
       expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA').with_values(registry_key_values_ca)
     end
+
+    it 'should set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA\CSP' do
+      shellout_certutil_getconfig = double(run_command: nil, error!: nil, stdout: "Config String: \"ROOTCA\\ROOTCA-CA\"\nCertUtil: -getconfig command completed successfully.\n", stderr: double(empty?: true))
+      Mixlib::ShellOut.stub(:new).with('certutil -getconfig', shellout_options).and_return(shellout_certutil_getconfig)
+      allow(shellout_certutil_getconfig).to receive(:live_stream).and_return(nil)
+      allow(shellout_certutil_getconfig).to receive(:live_stream=).and_return(nil)
+
+      shellout_certutil_ping = double(run_command: nil, error!: nil, stdout: "Connecting to ROOTCA\\ROOTCA-CA ...\nServer \"ROOTCA-CA\" ICertRequest2 interface is alive (0ms)\nCertUtil: -ping command completed successfully.\n", stderr: double(empty?: true))
+      Mixlib::ShellOut.stub(:new).with('certutil -ping', shellout_options).and_return(shellout_certutil_ping)
+      allow(shellout_certutil_ping).to receive(:live_stream).and_return(nil)
+      allow(shellout_certutil_ping).to receive(:live_stream=).and_return(nil)
+
+      expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA\CSP').with_values(
+        [
+          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0'))
+        ]
+      )
+    end
+
 
     it 'should enable and start the CertSvc service' do
       expect(chef_run).to enable_windows_service('CertSvc')
@@ -540,16 +575,16 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
     template_var_enhanced_key_usage = Array(template_var_enhanced_key_usage) unless template_var_enhanced_key_usage.nil?
 
     {
-      alternate_signature_algorithm: attributes[:alternate_signature_algorithm],
+      alternate_signature_algorithm: attributes[:alternate_signature_algorithm] == true ? 1 : 0,
       clock_skew_minutes: attributes[:clock_skew_minutes],
       crl_delta_period: attributes[:crl_delta_period],
       crl_delta_period_units: attributes[:crl_delta_period_units],
       crl_period: attributes[:crl_period],
       crl_period_units: attributes[:crl_period_units],
-      enable_key_counting: attributes[:enable_key_counting],
+      enable_key_counting: attributes[:enable_key_counting] == true ? 1 : 0,
       enhanced_key_usage: template_var_enhanced_key_usage,
-      force_utf8: attributes[:force_utf8],
-      load_default_templates: attributes[:load_default_templates],
+      force_utf8: attributes[:force_utf8] == true ? 1 : 0,
+      load_default_templates: attributes[:load_default_templates] == true ? 1 : 0,
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
@@ -606,7 +641,7 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
     it 'should create a CAPolicy.inf with expected content' do
       policy = [attributes[:policy]] unless attributes[:policy].nil?
       policy_name = []
-      attributes[:policy].each { |policy| policy_name << policy.first } unless attributes[:policy].nil?
+      attributes[:policy].each { |p| policy_name << p.first } unless attributes[:policy].nil?
 
       expect(chef_run).to create_template('C:/Windows/CAPolicy.inf').with_variables(template_vars_capolicy.merge(policy: policy, policy_name: policy_name))
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
@@ -628,8 +663,16 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
     end
 
     it 'should set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA' do
-      registry_key_values_ca.unshift({ name: 'AuditFilter', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new('127'.to_s)) }) if attributes[:enable_auditing_eventlogs]
+      registry_key_values_ca.unshift(name: 'AuditFilter', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new('127'.to_s))) if attributes[:enable_auditing_eventlogs]
       expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA').with_values(registry_key_values_ca)
+    end
+
+    it 'should set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA\CSP' do
+      expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA\CSP').with_values(
+        [
+          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0'))
+        ]
+      )
     end
 
     it 'should enable and start the CertSvc service' do

@@ -34,7 +34,7 @@ describe 'A Web Server' do
 
       describe 'with virtual directory configured for CDP' do
         describe iis_website('Default Web Site') do
-          it{ should have_virtual_dir('cdp').with_path('C:\\inetpub\\cdp') }
+          it { should have_virtual_dir('cdp').with_path('C:\\inetpub\\cdp') }
         end
 
         describe command('icacls C:\\inetpub\\cdp') do
@@ -51,7 +51,7 @@ describe 'A Web Server' do
     describe 'has a /cps virtual directory in the Default Web Site website' do
       describe 'with virtual directory configured for CPS' do
         describe iis_website('Default Web Site') do
-          it{ should have_virtual_dir('cps').with_path('C:\\inetpub\\cps') }
+          it { should have_virtual_dir('cps').with_path('C:\\inetpub\\cps') }
         end
 
         describe server(:localhost) do
