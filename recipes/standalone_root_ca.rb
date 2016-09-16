@@ -38,7 +38,6 @@ certificate_services_install 'StandaloneRootCA' do
   hash_algorithm caconfig['hash_algorithm'] if caconfig['hash_algorithm']
   key_length caconfig['key_length'] if caconfig['key_length']
   load_default_templates caconfig['load_default_templates'] if caconfig['load_default_templates']
-  log_directory caconfig['log_directory'] if caconfig['log_directory']
   overwrite_existing_ca_in_ds caconfig['overwrite_existing_ca_in_ds'] if caconfig['overwrite_existing_ca_in_ds']
   overwrite_existing_database caconfig['overwrite_existing_database'] if caconfig['overwrite_existing_database']
   overwrite_existing_key caconfig['overwrite_existing_key'] if caconfig['overwrite_existing_key']

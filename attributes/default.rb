@@ -31,7 +31,6 @@ default['certificate_services']['standalone_root_ca']['force_utf8']             
 default['certificate_services']['standalone_root_ca']['hash_algorithm']                         = 'SHA256'
 default['certificate_services']['standalone_root_ca']['key_length']                             = 4096
 default['certificate_services']['standalone_root_ca']['load_default_templates']                 = false
-default['certificate_services']['standalone_root_ca']['log_directory']                          = 'C:\Windows\system32\CertLog'
 default['certificate_services']['standalone_root_ca']['ocsp_url']                               = nil
 default['certificate_services']['standalone_root_ca']['overwrite_existing_ca_in_ds']            = false
 default['certificate_services']['standalone_root_ca']['overwrite_existing_database']            = false
@@ -71,7 +70,6 @@ default['certificate_services']['enterprise_subordinate_ca']['hash_algorithm']  
 default['certificate_services']['enterprise_subordinate_ca']['install_cert_file']               = "#{node['fqdn']}_#{node['domain'].split('.')[0]}-#{node['hostname']}-CA.crt" if node['domain']
 default['certificate_services']['enterprise_subordinate_ca']['key_length']                      = 4096
 default['certificate_services']['enterprise_subordinate_ca']['load_default_templates']          = false
-default['certificate_services']['enterprise_subordinate_ca']['log_directory']                   = 'C:\Windows\system32\CertLog'
 default['certificate_services']['enterprise_subordinate_ca']['ocsp_url']                        = nil
 default['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_ca_in_ds']     = false
 default['certificate_services']['enterprise_subordinate_ca']['overwrite_existing_database']     = false
