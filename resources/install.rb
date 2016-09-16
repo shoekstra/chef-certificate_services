@@ -242,37 +242,38 @@ action :create do
   #
   # Set certificate and certificate revocation list related registry values
   #
-  registry_values = []
-  registry_values << { name: 'AuditFilter',         type: :dword,  data: '127' } if new_resource.enable_auditing_eventlogs
-  registry_values << { name: 'CRLDeltaPeriod',      type: :string, data: new_resource.crl_delta_period.downcase.capitalize } if new_resource.crl_delta_period
-  registry_values << { name: 'CRLDeltaPeriodUnits', type: :dword,  data: new_resource.crl_delta_period_units } if new_resource.crl_delta_period_units
-  registry_values << { name: 'CRLOverlapPeriod',    type: :string, data: new_resource.crl_overlap_period.downcase.capitalize } if new_resource.crl_overlap_period
-  registry_values << { name: 'CRLOverlapUnits',     type: :dword,  data: new_resource.crl_overlap_units } if new_resource.crl_overlap_units
-  registry_values << { name: 'CRLPeriod',           type: :string, data: new_resource.crl_period.downcase.capitalize } if new_resource.crl_period
-  registry_values << { name: 'CRLPeriodUnits',      type: :dword,  data: new_resource.crl_period_units } if new_resource.crl_period_units
-  registry_values << { name: 'DSConfigDN',          type: :string, data: "CN=Configuration,#{domain_dn(new_resource.windows_domain)}" } if new_resource.windows_domain
-  registry_values << { name: 'DSDomainDN',          type: :string, data: domain_dn(new_resource.windows_domain) } if new_resource.windows_domain
-  registry_values << { name: 'ValidityPeriod',      type: :string, data: new_resource.validity_period.downcase.capitalize } if new_resource.validity_period
-  registry_values << { name: 'ValidityPeriodUnits', type: :dword,  data: new_resource.validity_period_units } if new_resource.validity_period_units
-
   unless ca_name.nil?
-    registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}" do
-      values registry_values
-      action :create
-      only_if { ca_configured? }
-      notifies :restart, 'windows_service[CertSvc]', :immediately
-    end
-  end
+    registry_values = []
+    registry_values << { name: 'AuditFilter',         type: :dword,  data: '127' } if new_resource.enable_auditing_eventlogs
+    registry_values << { name: 'CRLDeltaPeriod',      type: :string, data: new_resource.crl_delta_period.downcase.capitalize } if new_resource.crl_delta_period
+    registry_values << { name: 'CRLDeltaPeriodUnits', type: :dword,  data: new_resource.crl_delta_period_units } if new_resource.crl_delta_period_units
+    registry_values << { name: 'CRLOverlapPeriod',    type: :string, data: new_resource.crl_overlap_period.downcase.capitalize } if new_resource.crl_overlap_period
+    registry_values << { name: 'CRLOverlapUnits',     type: :dword,  data: new_resource.crl_overlap_units } if new_resource.crl_overlap_units
+    registry_values << { name: 'CRLPeriod',           type: :string, data: new_resource.crl_period.downcase.capitalize } if new_resource.crl_period
+    registry_values << { name: 'CRLPeriodUnits',      type: :dword,  data: new_resource.crl_period_units } if new_resource.crl_period_units
+    registry_values << { name: 'DSConfigDN',          type: :string, data: "CN=Configuration,#{domain_dn(new_resource.windows_domain)}" } if new_resource.windows_domain
+    registry_values << { name: 'DSDomainDN',          type: :string, data: domain_dn(new_resource.windows_domain) } if new_resource.windows_domain
+    registry_values << { name: 'ValidityPeriod',      type: :string, data: new_resource.validity_period.downcase.capitalize } if new_resource.validity_period
+    registry_values << { name: 'ValidityPeriodUnits', type: :dword,  data: new_resource.validity_period_units } if new_resource.validity_period_units
 
-  csp_registry_values = []
-  csp_registry_values << { name: 'AlternateSignatureAlgorithm', type: :dword, data: bool_to_int(new_resource.alternate_signature_algorithm) }
+    csp_registry_values = []
+    csp_registry_values << { name: 'AlternateSignatureAlgorithm', type: :dword, data: bool_to_int(new_resource.alternate_signature_algorithm) }
 
-  unless ca_name.nil?
-    registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}\\CSP" do
-      values csp_registry_values
-      action :create
-      only_if { ca_configured? }
-      notifies :restart, 'windows_service[CertSvc]', :immediately
+    # Second only is always false because service restarts, should really change method to retry but for now wrapped in an if block.
+    if ca_configured?
+      registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}" do
+        values registry_values
+        action :create
+        # only_if { ca_configured? }
+        notifies :restart, 'windows_service[CertSvc]', :immediately
+      end
+
+      registry_key "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_name.split(/\\/)[1]}\\CSP" do
+        values csp_registry_values
+        action :create
+        # only_if { ca_configured? }
+        notifies :restart, 'windows_service[CertSvc]', :immediately
+      end
     end
   end
 
