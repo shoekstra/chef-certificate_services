@@ -409,6 +409,27 @@ describe 'certificate_services::standalone_root_ca' do
     end
   end
 
+  describe 'when "key_length" attribute is set to "2048"' do
+    let(:attributes) do
+      default_attributes.merge(key_length: '2048')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['hostname'] = 'ROOTCA'
+        node.normal['certificate_services']['standalone_root_ca']['key_length'] = '2048'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'StandaloneRootCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'StandaloneRootCA is installed and is configured'
+    end
+  end
+
   describe 'when "policy" attribute contains a single policy' do
     let(:attributes) do
       default_attributes.merge(

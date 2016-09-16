@@ -421,7 +421,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.normal['certificate_services']['enterprise_subordinate_ca']['key_length'] = 2048
+        node.normal['certificate_services']['enterprise_subordinate_ca']['key_length'] = '2048'
       end.converge(described_recipe)
     end
 
@@ -681,7 +681,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['domain'] = 'CONTOSO'
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
-        node.normal['certificate_services']['enterprise_subordinate_ca']['renewal_key_length'] = 2048
+        node.normal['certificate_services']['enterprise_subordinate_ca']['renewal_key_length'] = '2048'
       end.converge(described_recipe)
     end
 
