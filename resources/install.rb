@@ -45,6 +45,7 @@ property :hash_algorithm,                  kind_of: String,                    r
 property :install_cert_file,               kind_of: String,                    required: false
 property :key_length,                      kind_of: [Fixnum, String],          required: true, default: 4096
 property :load_default_templates,          kind_of: [TrueClass, FalseClass],   required: true, default: false
+property :manual_install,                  kind_of: [TrueClass, FalseClass],   required: false, default: false
 property :ocsp_url,                        kind_of: [String, NilClass],        required: false, default: nil
 property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass],   required: false, default: false
 property :overwrite_existing_database,     kind_of: [TrueClass, FalseClass],   required: false, default: false
@@ -152,7 +153,7 @@ action :create do
 
   ruby_block 'Install ADCS Certification Authority' do
     block { powershell_out!(config_ca_cmd.join(' '), powershell_out_options) }
-    not_if { ca_installed? }
+    not_if { ca_installed? || new_resource.manual_install }
     action :run
   end
 

@@ -41,6 +41,7 @@ certificate_services_install 'EnterpriseSubordinateCA' do
   install_cert_file caconfig['install_cert_file'] if caconfig['install_cert_file']
   key_length caconfig['key_length'] if caconfig['key_length']
   load_default_templates caconfig['load_default_templates'] if caconfig['load_default_templates']
+  manual_install caconfig['manual_install'] if caconfig['manual_install']
   ocsp_url caconfig['ocsp_url'] if caconfig['ocsp_url']
   overwrite_existing_ca_in_ds caconfig['overwrite_existing_ca_in_ds'] if caconfig['overwrite_existing_ca_in_ds']
   overwrite_existing_database caconfig['overwrite_existing_database'] if caconfig['overwrite_existing_database']
