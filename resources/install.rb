@@ -122,10 +122,17 @@ action :create do
   end
 
   #
-  # Configure the CA
+  # PowerShell functions
   #
   directory new_resource.caconfig_dir
 
+  cookbook_file "#{new_resource.caconfig_dir}\\CertificateServicesFunctions.ps1" do
+    source "CertificateServicesFunctions.ps1"
+  end
+
+  #
+  # Configure the CA
+  #
   config_ca_cmd = [
     'Install-AdcsCertificationAuthority -Force',
     "-CAType #{new_resource.type}",

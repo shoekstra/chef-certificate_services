@@ -92,8 +92,12 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
     end
 
-    it 'should create default ca_config_dir' do
+    it 'should create ca_config_dir' do
       expect(chef_run).to create_directory(attributes[:caconfig_dir])
+    end
+
+    it 'should create "CertificateServicesFunctions.ps1"' do
+      expect(chef_run).to create_cookbook_file("#{attributes[:caconfig_dir]}\\CertificateServicesFunctions.ps1")
     end
 
     it 'should install Certificate Authority Windows features' do
@@ -210,8 +214,12 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
     end
 
-    it 'should create default ca_config_dir' do
+    it 'should create ca_config_dir' do
       expect(chef_run).to create_directory(attributes[:caconfig_dir])
+    end
+
+    it 'should create "CertificateServicesFunctions.ps1"' do
+      expect(chef_run).to create_cookbook_file("#{attributes[:caconfig_dir]}\\CertificateServicesFunctions.ps1")
     end
 
     it 'should install Certificate Authority Windows features' do
@@ -325,8 +333,12 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
     end
 
-    it 'should create default ca_config_dir' do
+    it 'should create ca_config_dir' do
       expect(chef_run).to create_directory(attributes[:caconfig_dir])
+    end
+
+    it 'should create "CertificateServicesFunctions.ps1"' do
+      expect(chef_run).to create_cookbook_file("#{attributes[:caconfig_dir]}\\CertificateServicesFunctions.ps1")
     end
 
     it 'should install Certificate Authority Windows features' do
@@ -490,8 +502,12 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
     end
 
-    it 'should create default ca_config_dir' do
+    it 'should create ca_config_dir' do
       expect(chef_run).to create_directory(attributes[:caconfig_dir])
+    end
+
+    it 'should create "CertificateServicesFunctions.ps1"' do
+      expect(chef_run).to create_cookbook_file("#{attributes[:caconfig_dir]}\\CertificateServicesFunctions.ps1")
     end
 
     it 'should install Certificate Authority Windows features' do
@@ -647,8 +663,12 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
       expect(chef_run).to render_file('C:/Windows/CAPolicy.inf').with_content(content_capolicy)
     end
 
-    it 'should create default ca_config_dir' do
+    it 'should create ca_config_dir' do
       expect(chef_run).to create_directory(attributes[:caconfig_dir])
+    end
+
+    it 'should create "CertificateServicesFunctions.ps1"' do
+      expect(chef_run).to create_cookbook_file("#{attributes[:caconfig_dir]}\\CertificateServicesFunctions.ps1")
     end
 
     it 'should install Certificate Authority Windows features' do
