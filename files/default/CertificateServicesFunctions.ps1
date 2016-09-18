@@ -1,3 +1,8 @@
+﻿#
+# Certificate Services PowerShell functions to help completely some manual tasks.
+#
+# Stephen Hoekstra <shoekstra@schubergphilis.com>
+#
 Function Run-Command($Command) {
     Process {
         Try {
@@ -13,20 +18,22 @@ Function Run-Command($Command) {
 
 Function Export-SubCACertificate {
     Param(
-        [String]$SubjectName,
+        [String]$SubjectName = $(Read-Host -prompt "SubjectName of CA certificate to export"),
+        [String]$Password = $(Read-Host -prompt "Password for Subordinate CA certificate file"),
         [String]$OutputFile
     )
 
     Process {
         $ThumbPrint = (Get-ChildItem Cert:\LocalMachine\My | ?{ $_.Subject -match "${SubjectName}" }).Thumbprint
         $Cert = Get-ChildItem -Path Cert:\LocalMachine\My\$ThumbPrint
+        $EncryptedPassword = ConvertTo-SecureString -String $Password -Force –AsPlainText
 
         If (!($OutputFile)) {
-            $OutputFile = "C:\${Cert.DnsNameList}.crt"
+            $OutputFile = "C:\${Cert.DnsNameList}.pfx"
         }
 
         Write-Host -NoNewLine "Exporting Subordinate CA Certificate to ${OutputFile}... "
-        Run-Command(Export-Certificate -Cert $cert -FilePath $OutputFile)
+        Run-Command(Export-PFXCertificate -Cert $cert -FilePath $OutputFile -Password $EncryptedPassword)
     }
 }
 
@@ -52,35 +59,45 @@ Function Import-RootCACertificate {
 Function Import-SubCACertificate {
     Param(
         [ValidateScript({Test-Path $_})]
-        [String]$SubCACertFile,
+        [String]$SubCACertFile = $(Read-Host -prompt "Path to Subordinate CA certificate file"),
+        [String]$SubCACertPassword = $(Read-Host -prompt "Password for Subordinate CA certificate file"),
         [String]$CSP
     )
 
     Process {
-        $SubCAThumbprint = Run-Command(Get-ChildItem -Path $SubCACertFile | Import-PFXCertificate -CertStoreLocation Cert:\LocalMachine\My).Thumbprint
-        if ($CSP.isPresent) {
-            Run-Command(Certutil –RepairStore –CSP "${CSP}" My "$($SubCAThumbprint -Replace '(..)','$1 ')")
+        $EncryptedPassword = ConvertTo-SecureString -String $SubCACertPassword -Force –AsPlainText
+        $CertObject = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+        $CertObject.Import($SubCACertFile, $SubCACertPassword, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"DefaultKeySet")
+
+        Run-Command(Import-PFXCertificate -FilePath $SubCACertFile -CertStoreLocation Cert:\LocalMachine\MY -Password $EncryptedPassword)
+        Move-Item "Cert:\LocalMachine\CA\$($CertObject.Thumbprint)" Cert:\LocalMachine\MY\
+
+        if ($CSP) {
+            Write-Host "Repairing certificate with thumbprint ${CertObject.Thumbprint}... "
+            Run-Command(Certutil –RepairStore –CSP "${CSP}" MY "$($CertObject.Thumbprint -Replace '(..)','$1 ')")
         }
-        Return $SubCAThumbprint
     }
 }
 
 Function Install-SubCA {
     Param(
         [ValidateScript({Test-Path $_})]
-        [String]$SubCACertFile,
-        [String]$CSP,
+        [String]$SubCACertFile = $(Read-Host -prompt "Path to Subordinate CA certificate file"),
+        [String]$SubCACertPassword = $(Read-Host -prompt "Password for Subordinate CA certificate file"),
+        [String]$CSP = "Microsoft Software Key Storage Provider",
         [String]$CADirectory
     )
 
     Process {
-        If ($SubCACertFile) {
-            Write-Host -NoNewLine "Importing Subordinate CA certificate... "
-            $SubCAThumbprint = Import-SubCACertificate -SubCACertFile $SubCACertFile -CSP $CSP
-        }
+        $EncryptedPassword = ConvertTo-SecureString -String $SubCACertPassword -Force –AsPlainText
+        $CertObject = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+        $CertObject.Import($SubCACertFile, $SubCACertPassword, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"DefaultKeySet")
+
+        Write-Host -NoNewLine "Importing Subordinate CA certificate... "
+        Run-Command(Import-SubCACertificate -SubCACertFile $SubCACertFile -SubCACertPassword $SubCACertPassword -CSP $CSP)
 
         Write-Host -NoNewLine "Completing Certificate Services installation... "
-        Run-Command(Install-AdcsCertificationAuthority -CAType EnterpriseSubordinateCA -CertificateID $SubCAThumbprint -Confirm:$False | Out-Null)
+        Run-Command(Install-AdcsCertificationAuthority -CAType EnterpriseSubordinateCA -CertificateID $CertObject.thumbprint -Confirm:$False | Out-Null)
 
         If ($CADirectory) {
             Move-CADirectory -NewPath $CADirectory
@@ -90,7 +107,7 @@ Function Install-SubCA {
 
 Function Move-CADirectory {
     Param(
-        [String]$NewPath
+        [String]$NewPath = $(Read-Host -prompt "New location for CA data directory")
     )
 
     Process {
@@ -117,3 +134,4 @@ Function Move-CADirectory {
         Run-Command(Start-Service CertSvc)
     }
 }
+
