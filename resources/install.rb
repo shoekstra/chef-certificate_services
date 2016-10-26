@@ -64,6 +64,44 @@ action_class do
   def bool_to_int(bool)
     bool == true ? 1 : 0
   end
+
+  def aia_update_required?(aia_urls = nil)
+    update_needed = false
+    return update_needed if aia_urls.nil?
+
+    ca_keys = registry_get_values("HKLM\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_common_name}")
+    aia_key = ca_keys.select { |key| key[:name] == 'CACertPublicationURLs' }.first
+    aia_key[:data].map! { |url| url.gsub(/^\d+\:/, '') }
+    aia_urls.each do |aia_url|
+      update_needed = true unless aia_key[:data].include?(aia_url)
+    end
+
+    update_needed
+  end
+
+  def cdp_update_required?(cdp_urls = nil)
+    update_needed = false
+    return update_needed if cdp_urls.nil?
+
+    ca_keys = registry_get_values("HKLM\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_common_name}")
+    cdp_key = ca_keys.select { |key| key[:name] == 'CRLPublicationURLs' }.first
+    cdp_key[:data].map! { |url| url.gsub(/^\d+\:/, '') }
+    cdp_urls.each do |cdp_url|
+      update_needed = true unless cdp_key[:data].include?(cdp_url)
+    end
+
+    update_needed
+  end
+
+  def ca_common_name
+    return new_resource.common_name if new_resource.common_name
+
+    if new_resource.type == 'StandaloneRootCA'
+      "#{node['hostname']}-CA"
+    else
+      "#{node['hostname']}-Issuing-CA"
+    end
+  end
 end
 
 action :create do
@@ -136,6 +174,7 @@ action :create do
   #
   config_ca_cmd = [
     'Install-AdcsCertificationAuthority -Force',
+    "-CACommonName '#{ca_common_name}'",
     "-CAType #{new_resource.type}",
     "-CryptoProviderName '#{new_resource.crypto_provider}'",
     "-DatabaseDirectory '#{new_resource.database_directory}'",
@@ -144,7 +183,6 @@ action :create do
     "-LogDirectory '#{new_resource.database_directory}'"
   ]
 
-  config_ca_cmd << "-CACommonName '#{new_resource.common_name}'" if new_resource.common_name
   config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
   config_ca_cmd << '-OverwriteExistingDatabase' if new_resource.overwrite_existing_database
   config_ca_cmd << '-OverwriteExistingKey' if new_resource.overwrite_existing_key
@@ -201,6 +239,23 @@ action :create do
   #
   # Configure AIA and CDP locations
   #
+  aia_urls = new_resource.aia_url
+  aia_urls = Array(aia_url) unless aia_urls.nil?
+
+  aia_code = []
+  aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+  aia_urls.each do |aia_url|
+    aia_code << "Add-CAAuthorityInformationAccess -Uri #{aia_url} -AddToCertificateAia -Force"
+  end unless aia_urls.nil?
+  aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.ocsp_url} -AddToCertificateOcsp -Force" unless new_resource.ocsp_url.nil?
+
+  powershell_script 'Configure AIA' do
+    code aia_code.join('; ')
+    action :run
+    notifies :restart, 'windows_service[CertSvc]'
+    only_if { ca_configured? && aia_update_required?(aia_urls) }
+  end
+
   cdp_code = []
   cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
 
@@ -210,6 +265,7 @@ action :create do
   if new_resource.type == 'StandaloneRootCA'
     cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force'
     cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8.crl -PublishToServer -Force"
+
     cdp_urls.each do |cdp_url|
       cdp_code << "Add-CACrlDistributionPoint -Uri #{cdp_url} -AddToCertificateCDP -Force"
     end unless cdp_urls.nil?
@@ -222,28 +278,11 @@ action :create do
     end unless cdp_urls.nil?
   end
 
-  aia_urls = new_resource.aia_url
-  aia_urls = Array(aia_url) unless aia_urls.nil?
-
-  aia_code = []
-  aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
-  aia_urls.each do |aia_url|
-    aia_code << "Add-CAAuthorityInformationAccess -Uri #{aia_url} -AddToCertificateAia -Force"
-  end unless aia_urls.nil?
-  aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.ocsp_url} -AddToCertificateOcsp -Force" unless new_resource.ocsp_url.nil?
-
   powershell_script 'Configure CDP' do
     code cdp_code.join('; ')
     action :run
     notifies :restart, 'windows_service[CertSvc]'
-    only_if { ca_configured? }
-  end
-
-  powershell_script 'Configure AIA' do
-    code aia_code.join('; ')
-    action :run
-    notifies :restart, 'windows_service[CertSvc]'
-    only_if { ca_configured? }
+    only_if { ca_configured? && cdp_update_required?(cdp_urls) }
   end
 
   #
@@ -251,7 +290,7 @@ action :create do
   #
   unless ca_name.nil?
     registry_values = []
-    registry_values << { name: 'AuditFilter',         type: :dword,  data: '127' } if new_resource.enable_auditing_eventlogs
+    registry_values << { name: 'AuditFilter',         type: :dword,  data: 127 } if new_resource.enable_auditing_eventlogs
     registry_values << { name: 'CRLDeltaPeriod',      type: :string, data: new_resource.crl_delta_period.downcase.capitalize } if new_resource.crl_delta_period
     registry_values << { name: 'CRLDeltaPeriodUnits', type: :dword,  data: new_resource.crl_delta_period_units } if new_resource.crl_delta_period_units
     registry_values << { name: 'CRLOverlapPeriod',    type: :string, data: new_resource.crl_overlap_period.downcase.capitalize } if new_resource.crl_overlap_period

@@ -25,9 +25,13 @@ describe 'certificate_services::enterprise_subordinate_ca' do
   end
 
   let(:command_install_adcs) do
+    common_name = 'SUBCA-Issuing-CA'
+    common_name = attributes[:common_name] unless attributes[:common_name].nil?
+
     command = [
       'Install-AdcsCertificationAuthority',
       '-Force',
+      "-CACommonName '#{common_name}'",
       '-CAType EnterpriseSubordinateCA',
       "-CryptoProviderName '#{attributes[:crypto_provider]}'",
       "-DatabaseDirectory '#{attributes[:database_directory]}'",
@@ -35,7 +39,6 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       "-KeyLength #{attributes[:key_length]}",
       "-LogDirectory '#{attributes[:database_directory]}'"
     ]
-    command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
     command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
     command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
     command << '-OverwriteExistingKey' if attributes[:overwrite_existing_key]
@@ -71,7 +74,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       caconfig_dir: 'C:\CAConfig',
       cdp_url: nil,
       clock_skew_minutes: 10,
-      # common_name: nil,
+      common_name: nil,
       crl_delta_period: 'days',
       crl_delta_period_units: 1,
       # crl_overlap_period: 'hours',
@@ -134,6 +137,75 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     end
   end
 
+  describe 'when "aia_url" attribute is set to a single URL' do
+    let(:attributes) do
+      default_attributes.merge(aia_url: 'http://pki.contoso.com/cdp/%3%4.crt')
+    end
+
+    let(:code_configure_aia) do
+      [
+        'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
+        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force'
+      ].join('; ')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3%4.crt'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "aia_url" attribute is set to an array of URLs' do
+    let(:attributes) do
+      default_attributes.merge(aia_url: ['http://pki.contoso.com/cdp/%3%4.crt', 'http://pki2.contoso.com/cdp/%3%4.crt'])
+    end
+
+    let(:code_configure_aia) do
+      [
+        'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
+        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force',
+        'Add-CAAuthorityInformationAccess -Uri http://pki2.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force'
+      ].join('; ')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['aia_url'] = ['http://pki.contoso.com/cdp/%3%4.crt', 'http://pki2.contoso.com/cdp/%3%4.crt']
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
   describe 'when "alternate_signature_algorithm" attribute is set to "true"' do
     let(:attributes) do
       default_attributes.merge(
@@ -180,41 +252,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     end
   end
 
-  describe 'when "aia_url" attribute is set to "http://pki.contoso.com/cdp/%3%4.crt"' do
-    let(:attributes) do
-      default_attributes.merge(aia_url: 'http://pki.contoso.com/cdp/%3%4.crt')
-    end
-
-    let(:code_configure_aia) do
-      [
-        'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
-        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force'
-      ].join('; ')
-    end
-
-    let(:chef_run) do
-      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
-        node.automatic['domain'] = 'CONTOSO'
-        node.automatic['fqdn'] = 'SUBCA.contoso.com'
-        node.automatic['hostname'] = 'SUBCA'
-        node.normal['certificate_services']['enterprise_subordinate_ca']['aia_url'] = 'http://pki.contoso.com/cdp/%3%4.crt'
-      end.converge(described_recipe)
-    end
-
-    describe 'and the Certificate Authority is not installed and is not configured' do
-      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
-    end
-
-    describe 'and the Certificate Authority is installed and is not configured' do
-      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
-    end
-
-    describe 'and the Certificate Authority is installed and is configured' do
-      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
-    end
-  end
-
-  describe 'when "cdp_url" attribute is set to "http://pki.contoso.com/cdp/%3%8%9.crl"' do
+  describe 'when "cdp_url" attribute is set to a single URL' do
     let(:attributes) do
       default_attributes.merge(cdp_url: 'http://pki.contoso.com/cdp/%3%8%9.crl')
     end
@@ -234,6 +272,43 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         node.automatic['fqdn'] = 'SUBCA.contoso.com'
         node.automatic['hostname'] = 'SUBCA'
         node.normal['certificate_services']['enterprise_subordinate_ca']['cdp_url'] = 'http://pki.contoso.com/cdp/%3%8%9.crl'
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "cdp_url" attribute is set to an array of URLs' do
+    let(:attributes) do
+      default_attributes.merge(cdp_url: ['http://pki.contoso.com/cdp/%3%8%9.crl', 'http://pki2.contoso.com/cdp/%3%8%9.crl'])
+    end
+
+    let(:code_configure_cdp) do
+      [
+        'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }',
+        'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
+        'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
+        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force',
+        'Add-CACrlDistributionPoint -Uri http://pki2.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force'
+      ].join('; ')
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['cdp_url'] = ['http://pki.contoso.com/cdp/%3%8%9.crl', 'http://pki2.contoso.com/cdp/%3%8%9.crl']
       end.converge(described_recipe)
     end
 

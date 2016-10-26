@@ -7,7 +7,6 @@
 # Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
 #
 
-require 'digest'
 require 'spec_helper'
 
 describe 'certificate_services::standalone_root_ca' do
@@ -26,9 +25,13 @@ describe 'certificate_services::standalone_root_ca' do
   end
 
   let(:command_install_adcs) do
+    common_name = 'ROOTCA-CA'
+    common_name = attributes[:common_name] unless attributes[:common_name].nil?
+
     command = [
       'Install-AdcsCertificationAuthority',
       '-Force',
+      "-CACommonName '#{common_name}'",
       '-CAType StandaloneRootCA',
       "-CryptoProviderName '#{attributes[:crypto_provider]}'",
       "-DatabaseDirectory '#{attributes[:database_directory]}'",
@@ -36,7 +39,6 @@ describe 'certificate_services::standalone_root_ca' do
       "-KeyLength #{attributes[:key_length]}",
       "-LogDirectory '#{attributes[:database_directory]}'"
     ]
-    command << "-CACommonName '#{attributes[:common_name]}'" if attributes[:common_name]
     command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
     command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
     command << '-OverwriteExistingKey' if attributes[:overwrite_existing_key]
