@@ -89,6 +89,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       enable_key_counting: false,
       enhanced_key_usage: nil,
       force_utf8: false,
+      failover_clustering: false,
       hash_algorithm: 'SHA256',
       install_cert_file: 'SUBCA.contoso.com_CONTOSO-SUBCA-CA.crt',
       key_length: 4096,
@@ -474,6 +475,33 @@ describe 'certificate_services::enterprise_subordinate_ca' do
 
     describe 'and the Certificate Authority is not installed and is not configured' do
       it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is configured'
+    end
+  end
+
+  describe 'when "failover_clustering" attribute is set to "false"' do
+    let(:attributes) do
+      default_attributes.merge(failover_clustering: false)
+    end
+
+    let(:chef_run) do
+      ChefSpec::SoloRunner.new(step_into: [:certificate_services_install, :ruby_block]) do |node|
+        node.automatic['domain'] = 'CONTOSO'
+        node.automatic['fqdn'] = 'SUBCA.contoso.com'
+        node.automatic['hostname'] = 'SUBCA'
+        node.normal['certificate_services']['enterprise_subordinate_ca']['failover_clustering'] = false
+      end.converge(described_recipe)
+    end
+
+    describe 'and the Certificate Authority is not installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is not installed and is not configured'
+    end
+
+    describe 'and the Certificate Authority is installed and is not configured' do
+      it_behaves_like 'EnterpriseSubordinateCA is installed and is not configured'
     end
 
     describe 'and the Certificate Authority is installed and is configured' do

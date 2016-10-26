@@ -40,6 +40,7 @@ property :domain_user,                     kind_of: String,                    r
 property :enable_auditing_eventlogs,       kind_of: [TrueClass, FalseClass],   required: true, default: true
 property :enable_key_counting,             kind_of: [TrueClass, FalseClass],   required: true, default: false
 property :enhanced_key_usage,              kind_of: [Array, String],           required: false, default: nil
+property :failover_clustering,             kind_of: [TrueClass, FalseClass],   required: true, default: false
 property :force_utf8,                      kind_of: [TrueClass, FalseClass],   required: true, default: false
 property :hash_algorithm,                  kind_of: String,                    required: true, default: 'SHA256'
 property :install_cert_file,               kind_of: String,                    required: false
@@ -324,10 +325,11 @@ action :create do
   end
 
   #
-  # Start the Active Directory Certificate Services service
+  # Start the Active Directory Certificate Services service and set startup_type to automatic unless nodes are clustered
   #
   windows_service 'CertSvc' do
-    action new_resource.type == 'StandaloneRootCA' ? [:enable, :start] : ca_configured? ? [:enable, :start] : :nothing
+    startup_type new_resource.failover_clustering ? :manual : :automatic
+    action new_resource.type == 'StandaloneRootCA' ? [:enable, :start] : ca_configured? ? [:start] : :nothing
   end
 
   #
