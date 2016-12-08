@@ -10,25 +10,23 @@
 include CertificateServices::Helper
 include Windows::Helper
 
-actions :install, :uninstall
+actions :install
 default_action :install
 
-# CA type to install/configure
-
-property :name, kind_of: String, required: true, name_property: true
-
-property :ca_config,   kind_of: String, required: true
-property :domain_pass, kind_of: String, required: false
-property :domain_user, kind_of: String, required: false
+property :ca_config,   kind_of: String, required: true, name_property: true
+property :domain_pass, kind_of: String, required: true
+property :domain_user, kind_of: String, required: true
 
 action_class do
   def certsrv_vdir_installed?
-    result = powershell_out('Import-Module WebAdministration; Test-Path \"IIS:\\Sites\\Default Web Site\\CertSrv\"').stdout.chomp
+    result = powershell_out('Import-Module WebAdministration; Test-Path "IIS:\\Sites\\Default Web Site\\CertSrv"').stdout.chomp
     result == 'True'
   end
 end
 
 action :install do
+  include_recipe "#{cookbook_name}::_iis" unless node.recipe?("#{cookbook_name}::_iis")
+
   windows_feature 'ADCS-Web-Enrollment' do
     action :install
     provider :windows_feature_powershell
@@ -73,18 +71,5 @@ action :install do
     code 'Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\Sites\Default Web Site\CertSrv" -Name Enabled -Value "False"'
     not_if '(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\Sites\Default Web Site\CertSrv" -Name Enabled).Value -eq $False'
     notifies :restart, 'windows_service[W3SVC]'
-  end
-end
-
-action :uninstall do
-  ruby_block 'Configure ADCS Web Enrollment' do
-    block { powershell_out!('Uninstall-AdcsWebEnrollment -Force', powershell_out_options) }
-    only_if { certsrv_vdir_installed? }
-    action :run
-  end
-
-  windows_feature 'ADCS-Web-Enrollment' do
-    action :uninstall
-    provider :windows_feature_powershell
   end
 end
