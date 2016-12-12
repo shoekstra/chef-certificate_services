@@ -95,6 +95,9 @@ default['certificate_services']['crl_distribution_point']['cps']['virtual_dir_pa
 
 # Default values for Certificate Enrollment Policy Web Services
 
+default['certificate_services']['enrollment_policy_web_service']['kerberos']                    = {}
+default['certificate_services']['enrollment_policy_web_service']['username']                    = {}
+
 # Default values for Certificate Enrollment Web Services
 
 default['certificate_services']['enrollment_web_service']['kerberos']                           = {}
