@@ -108,3 +108,27 @@ default['certificate_services']['enrollment_web_service']['username']           
 default['certificate_services']['web_enrollment']['ca_config']                                  = nil
 default['certificate_services']['web_enrollment']['domain_pass']                                = nil
 default['certificate_services']['web_enrollment']['domain_user']                                = nil
+
+# Default values for Network Device Enrollment Service
+
+default['certificate_services']['network_device_enrollment_service']['app_pool_identity']        = true
+default['certificate_services']['network_device_enrollment_service']['ca_config']                = nil
+default['certificate_services']['network_device_enrollment_service']['domain_pass']              = nil
+default['certificate_services']['network_device_enrollment_service']['domain_user']              = nil
+default['certificate_services']['network_device_enrollment_service']['encryption_key_length']    = 2048
+default['certificate_services']['network_device_enrollment_service']['encryption_provider_name'] = 'Microsoft Strong Cryptographic Provider'
+default['certificate_services']['network_device_enrollment_service']['encryption_template']      = 'IPSECIntermediateOffline'
+default['certificate_services']['network_device_enrollment_service']['general_purpose_template'] = 'IPSECIntermediateOffline'
+default['certificate_services']['network_device_enrollment_service']['ra_city']                  = nil
+default['certificate_services']['network_device_enrollment_service']['ra_company']               = nil
+default['certificate_services']['network_device_enrollment_service']['ra_country']               = nil
+default['certificate_services']['network_device_enrollment_service']['ra_department']            = nil
+default['certificate_services']['network_device_enrollment_service']['ra_email']                 = nil
+default['certificate_services']['network_device_enrollment_service']['ra_name']                  = nil
+default['certificate_services']['network_device_enrollment_service']['ra_state']                 = nil
+default['certificate_services']['network_device_enrollment_service']['service_password']         = nil
+default['certificate_services']['network_device_enrollment_service']['service_user']             = nil
+default['certificate_services']['network_device_enrollment_service']['signature_template']       = 'IPSECIntermediateOffline'
+default['certificate_services']['network_device_enrollment_service']['signing_key_length']       = 2048
+default['certificate_services']['network_device_enrollment_service']['signing_provider_name']    = 'Microsoft Strong Cryptographic Provider'
+default['certificate_services']['network_device_enrollment_service']['use_single_password']      = false
