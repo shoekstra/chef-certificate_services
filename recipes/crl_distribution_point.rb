@@ -7,34 +7,7 @@
 # Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
 #
 
-#
-# Install and configure IIS
-#
-%w(Web-Mgmt-Console Web-Mgmt-Service Web-Mgmt-Tools Web-WebServer).each do |feature_name|
-  windows_feature feature_name do
-    action :install
-    provider :windows_feature_powershell
-  end
-end
-
-%w(W3SVC WMSvc).each do |service_name|
-  windows_service service_name do
-    action [:enable, :start]
-  end
-end
-
-registry_key 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\WebManagement\\Server' do
-  values [{ name: 'EnableRemoteManagement', type: :dword, data: '1' }]
-  notifies :restart, 'windows_service[WMSvc]'
-end
-
-#
-# Configure anonymous authentication to use the DefaultAppPool
-#
-powershell_script 'Set anonymous authentication (WebConfiguration)' do
-  code 'Set-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost -Metadata overrideMode -Value Allow'
-  notifies :restart, 'windows_service[W3SVC]'
-end
+include_recipe "#{cookbook_name}::_iis" unless node.recipe?("#{cookbook_name}::_iis")
 
 #
 # Configure CDP virtual directory
@@ -42,19 +15,22 @@ end
 cdp = node['certificate_services']['crl_distribution_point']['cdp']
 
 enterprise_subordinates = []
-search(
-  :node,
-  "(chef_environment:#{node.chef_environment} AND recipe:certificate_services\\:\\:enterprise_subordinate_ca)",
-  :filter_result => { 'hostname' => [ 'hostname' ] }
-).each do |node|
-  enterprise_subordinates << node['hostname']
+
+unless Chef::Config[:solo]
+  search(
+    :node,
+    "(chef_environment:#{node.chef_environment} AND recipes:certificate_services\\:\\:enterprise_subordinate_ca)",
+    filter_result: { 'hostname' => ['hostname'] }
+  ).each do |node|
+    enterprise_subordinates << node['hostname'].upcase
+  end
 end
 
 directory cdp['physical_dir_path'] do
   rights :read_execute, 'IIS APPPOOL\\DefaultAppPool'
   rights :modify, "#{node['domain']}\\Cert Publishers"
-  enterprise_subordinates.each do |ca|
-    rights :modify, "#{node['domain']}\\#{ca.upcase}$"
+  enterprise_subordinates.each do |enterprise_subordinate|
+    rights :modify, "#{node['domain']}\\#{enterprise_subordinate}$"
   end
   ignore_failure true # This resource would fail if nodes built in parallel and the "Cert Publishers" does not yet exist
 end
@@ -75,12 +51,14 @@ iis_vdir cdp['virtual_dir_path'] do
 end
 
 powershell_script "Allow allowDoubleEscaping \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\"" do
-  code "Set-WebConfigurationProperty -Filter system.webServer/security/requestFiltering -PSPath \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\" -Name allowDoubleEscaping -Value True"
+  code "Set-WebConfigurationProperty -Filter /system.webServer/security/requestFiltering -PSPath \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\" -Name allowDoubleEscaping -Value True"
+  not_if "(Get-WebConfigurationProperty -Filter /system.webServer/security/requestFiltering -PSPath \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\" -Name allowDoubleEscaping).Value -eq 'True'"
   notifies :restart, 'windows_service[W3SVC]'
 end
 
 powershell_script "Set anonymous authentication \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\"" do
-  code "Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\" -Name username -Value \"\""
+  code "Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\" -Name username -Value ''"
+  not_if "(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\#{cdp['virtual_dir_path'].delete('/')}\" -Name username).Value -eq ''"
   notifies :restart, 'windows_service[W3SVC]'
 end
 
@@ -100,25 +78,13 @@ iis_vdir cps['virtual_dir_path'] do
 end
 
 powershell_script "Allow allowDoubleEscaping \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\"" do
-  code "Set-WebConfigurationProperty -Filter system.webServer/security/requestFiltering -PSPath \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\" -Name allowDoubleEscaping -Value True"
+  code "Set-WebConfigurationProperty -Filter /system.webServer/security/requestFiltering -PSPath \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\" -Name allowDoubleEscaping -Value True"
+  not_if "(Get-WebConfigurationProperty -Filter /system.webServer/security/requestFiltering -PSPath \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\" -Name allowDoubleEscaping).Value -eq 'True'"
   notifies :restart, 'windows_service[W3SVC]'
 end
 
 powershell_script "Set anonymous authentication \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\"" do
-  code "Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\" -Name username -Value \"\""
+  code "Set-WebConfigurationProperty -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\" -Name username -Value ''"
+  not_if "(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\#{cps['virtual_dir_path'].delete('/')}\" -Name username).Value -eq ''"
   notifies :restart, 'windows_service[W3SVC]'
-end
-
-[
-  node['certificate_services']['standalone_root_ca']['policy'],
-  node['certificate_services']['enterprise_subordinate_ca']['policy']
-].each do |policy|
-  next if policy.nil?
-  policy.each do |p|
-    next unless p.last.has_key?('url')
-
-    file ::File.join(cps['physical_dir_path'], File.basename(p.last['url'].downcase)) do
-      content p.last['notice']
-    end
-  end
 end

@@ -167,7 +167,7 @@ action :create do
   directory new_resource.caconfig_dir
 
   cookbook_file "#{new_resource.caconfig_dir}\\CertificateServicesFunctions.ps1" do
-    source "CertificateServicesFunctions.ps1"
+    source 'CertificateServicesFunctions.ps1'
   end
 
   #
