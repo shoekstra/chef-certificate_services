@@ -22,7 +22,7 @@ describe 'An Enterprise Subordinate CA server' do
     end
 
     describe windows_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\SUBCA-CA') do
-      it { should have_property_value('AuditFilter',         :type_string, '127') }
+      it { should have_property_value('AuditFilter',         :type_string, 127) }
       # it { should have_property_value('CRLDeltaPeriod',      :type_string, 'Days') }
       # it { should have_property_value('CRLDeltaPeriodUnits', :type_string, '0') }
       # it { should have_property_value('CRLOverlapPeriod',    :type_string, 'Hours') }

@@ -9,17 +9,19 @@
 
 require 'spec_helper'
 
+require_relative '_iis_spec.rb'
+
 describe 'certificate_services::crl_distribution_point' do
   context 'when all attributes are default' do
     cached(:chef_run) do
-      ChefSpec::SoloRunner.new do |node|
+      ChefSpec::ServerRunner.new do |node|
         node.automatic['domain'] = 'CONTOSO'
       end.converge(described_recipe)
     end
 
     before do
       stub_command('Get-SmbShare -Name CDP').and_return(false)
-      stub_search("node", "(chef_environment:_default AND recipes:certificate_services\\:\\:enterprise_subordinate_ca)").and_return([{"hostname"=>"subca1"}, {"hostname"=>"subca2"}])
+      stub_search(:node, "(chef_environment:_default AND recipes:certificate_services\\:\\:enterprise_subordinate_ca)").and_return([{ hostname: 'subca1' }, { hostname: 'subca2' }])
     end
 
     it 'should converge successfully' do
@@ -32,7 +34,7 @@ describe 'certificate_services::crl_distribution_point' do
       end
 
       expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\WebManagement\\Server').with_values(
-        [ name: 'EnableRemoteManagement', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new('1'.to_s)) ]
+        [name: 'EnableRemoteManagement', type: :dword, data: Chef::Digester.instance.generate_checksum(1)]
       )
       expect(chef_run.registry_key('HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\WebManagement\\Server')).to notify('windows_service[WMSvc]').to(:restart).delayed
 

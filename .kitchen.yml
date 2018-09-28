@@ -1,7 +1,9 @@
 <% attributes = '
       certificate_services:
         standalone_root_ca:
+          aia_url: http://pki.contoso.com/cdp/%3.crt
           cdp_url: http://pki.contoso.com/cdp/%3%8.crl
+          common_name: ROOTCA-CA
           windows_domain: contoso.com
           policy:
             LegalPolicy:
@@ -11,9 +13,10 @@
         enterprise_subordinate_ca:
           aia_url: http://pki.contoso.com/cdp/%3%4.crt
           cdp_url: http://pki.contoso.com/cdp/%3%8%9.crl
+          common_name: SUBCA-Issuing-CA
           domain_user: Administrator
           domain_pass: Passw0rd!
-          install_cert: SUBCA.contoso.com_SUBCA-Issuing-CA.crt
+          install_cert_file: SUBCA.contoso.com_SUBCA-Issuing-CA.crt
           ocsp_url: http://pki.contoso.com/ocsp
           policy:
             LegalPolicy:
@@ -22,6 +25,23 @@
               url: http://pki.contoso.com/cps/legal.txt
           root_crl_file: ROOTCA-CA.crl
           root_crt_file: ROOTCA_ROOTCA-CA.crt
+      crl_copy:
+        master_crls:
+          C:\CAConfig\SUBCA-Issuing-CA.crl:
+            cdps:
+              web.contoso.com:
+                retrieval: www
+                retrieval_path: http://web/cdp/
+                push: true
+                push_method: file
+                push_path: \\\\web\cdp\\
+              Public CDP:
+                retrieval: www
+                retrieval_path: http://pki.contoso.com/cdp/
+                push:
+                push_method:
+                push_path:
+            has_delta_crl: true
 ' %>
 ---
 driver:
@@ -38,7 +58,6 @@ platforms:
     driver:
       box: windows2012r2
       box_check_update: false
-      box_url: https://artifacts.schubergphilis.com/artifacts/vagrant/sbp_windows_2012_r2_20141211_1.box
 
 suites:
   - name: DomainController
@@ -69,6 +88,7 @@ suites:
       - recipe[certificate_services_test::default]
       - recipe[certificate_services_test::domain_join]
       - recipe[certificate_services::enterprise_subordinate_ca]
+      - recipe[crl_copy::default]
     attributes:
       <%= attributes %>
 
