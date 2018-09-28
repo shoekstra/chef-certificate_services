@@ -43,6 +43,15 @@ module CertificateServices
     end
 
     #
+    # Return an array (empty array if passed nil)
+    #
+    def to_array(var)
+      var = var.is_a?(Array) ? var : [var]
+      var = var.reject(&:nil?)
+      var
+    end
+
+    #
     # Return true if computer is running Windows
     #
     def windows?
@@ -60,4 +69,4 @@ module CertificateServices
       computer_system['partofdomain']
     end
   end
-end
+end unless defined?(CertificateServices::Helper)
