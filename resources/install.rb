@@ -150,7 +150,7 @@ action :create do
   #
   windows_feature 'ADCS-Cert-Authority' do
     action :install
-    provider :windows_feature_powershell
+    install_method :windows_feature_powershell
   end
 
   #
@@ -158,7 +158,7 @@ action :create do
   #
   windows_feature 'RSAT-ADCS-Mgmt' do
     action :install
-    provider :windows_feature_powershell
+    install_method :windows_feature_powershell
   end
 
   #

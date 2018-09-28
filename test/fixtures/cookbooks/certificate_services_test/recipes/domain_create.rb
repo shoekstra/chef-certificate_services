@@ -9,7 +9,7 @@
 
 windows_feature 'AD-Domain-Services' do
   action :install
-  provider :windows_feature_powershell
+  install_method :windows_feature_powershell
 end
 
 windows_ad_domain 'contoso.com' do

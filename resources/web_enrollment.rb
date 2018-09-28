@@ -29,7 +29,7 @@ action :install do
 
   windows_feature 'ADCS-Web-Enrollment' do
     action :install
-    provider :windows_feature_powershell
+    install_method :windows_feature_powershell
   end
 
   powershell_out_options = { user: new_resource.domain_user, password: new_resource.domain_pass, domain: node['domain'] }
