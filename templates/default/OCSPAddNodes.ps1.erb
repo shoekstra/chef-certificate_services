@@ -1,0 +1,15 @@
+# Get The Info Of The Local Server
+$ocspServerFQDN = "<%= @array_controller -%>"
+
+# Put The OCSP Configuration In An Object
+$ocspAdmin = New-Object -com "CertAdm.OCSPAdmin"
+$ocspAdmin.GetConfiguration($ocspServerFQDN, $true)
+
+# Define The Total List Of Array Members
+[string[]]$arrayMembers = @(<%= @array_members.map { |m| "'#{m}'" } * ', ' -%>)
+
+# Write The New Total List Of Array Members
+$ocspAdmin.OCSPServiceProperties.Item(2).Value = $arrayMembers
+
+# Commit The Changes
+$ocspAdmin.SetConfiguration($ocspServerFQDN, $true)

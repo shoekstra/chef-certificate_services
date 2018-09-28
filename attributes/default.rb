@@ -89,7 +89,6 @@ default['certificate_services']['enterprise_subordinate_ca']['validity_period_un
 
 default['certificate_services']['crl_distribution_point']['cdp']['physical_dir_path']           = 'C:\inetpub\cdp'
 default['certificate_services']['crl_distribution_point']['cdp']['virtual_dir_path']            = '/cdp'
-
 default['certificate_services']['crl_distribution_point']['cps']['physical_dir_path']           = 'C:\inetpub\cps'
 default['certificate_services']['crl_distribution_point']['cps']['virtual_dir_path']            = '/cps'
 
@@ -132,3 +131,9 @@ default['certificate_services']['network_device_enrollment_service']['signature_
 default['certificate_services']['network_device_enrollment_service']['signing_key_length']       = 2048
 default['certificate_services']['network_device_enrollment_service']['signing_provider_name']    = 'Microsoft Strong Cryptographic Provider'
 default['certificate_services']['network_device_enrollment_service']['use_single_password']      = false
+
+# Default values for Online Responder
+
+default['certificate_services']['online_responder']['ca_name']                                  = nil
+default['certificate_services']['online_responder']['domain_pass']                              = nil
+default['certificate_services']['online_responder']['domain_user']                              = nil

@@ -1,0 +1,83 @@
+Import-Module PSPKI
+
+# Get The Info Of The Local Server
+$cdpUrlBase = "<%= @cdp_url_base %>"
+$ocspServerFQDN = "<%= @array_controller %>"
+
+# Get All The Enterprise CAs Published In AD
+$enterpriseCA = Get-CA -ComputerName <%= @ca_name %>
+
+# Get The CA Name
+$caName = $enterpriseCA.DisplayName
+
+# Get The CA Server Name
+$caServerName = "<%= @ca_name %>"
+
+# Get The CA Config String
+$caConfigString = "${caServerName}\${caName}"
+
+# Get The CA Certificate
+$caCert = $enterpriseCA.Certificate
+
+# Get The RawData Of The CA Certificate
+$caCertRawData = $caCert.RawData
+
+# Define The OCSP Name
+$ocspName = "OCSP For " + $caName + " (" + $caServerName + ")"
+
+# Get The OCSP Signing Certificate Template Published By The CA
+($enterpriseCA | Get-CATemplate).Templates | %{
+    $certTemplateDisplayName = $_.DisplayName
+    $enhancedKeyUsageCertTemplate = (Get-CertificateTemplate -DisplayName $certTemplateDisplayName).Settings.EnhancedKeyUsage
+    $enhancedKeyUsageFound = $enhancedKeyUsageCertTemplate | ?{$_.FriendlyName -eq "OCSP Signing"}
+    If ($enhancedKeyUsageFound -ne $null) {
+        $ocspCertTemplateName = (Get-CertificateTemplate -DisplayName $certTemplateDisplayName).Name
+    }
+}
+
+If (!$ocspCertTemplateName) {
+    Write-Host "No Certificate Template Found With The 'OCSP Signing' Extension"
+    Break
+}
+
+# Configure The Revocation Provider Properties In A Property Collection Object For This CA
+$ocspProperties = New-Object -com "CertAdm.OCSPPropertyCollection"
+$baseCrl        = $cdpUrlBase.ToLower() + "/" + $caName + ".crl"
+$deltaCrl       = $cdpUrlBase.ToLower() + "/" + $caName + "+.crl"
+$ocspProperties.CreateProperty("BaseCrlUrls", $baseCrl)
+$ocspProperties.CreateProperty("DeltaCrlUrls", $deltaCrl)
+$ocspProperties.CreateProperty("RevocationErrorCode", 0)
+#$ocspProperties.CreateProperty("RefreshTimeOut", 3600000) # Update CRLs At This Refresh Interval
+
+# Configure The OCSP Signing Flags To Automatically Select A Signing Cert
+# http://msdn.microsoft.com/en-us/library/windows/desktop/aa386387(v=vs.85).aspx
+$OCSP_SF_SILENT = 0x001
+$OCSP_SF_ALLOW_SIGNINGCERT_AUTORENEWAL = 0x004
+$OCSP_SF_FORCE_SIGNINGCERT_ISSUER_ISCA = 0x008
+$OCSP_SF_AUTODISCOVER_SIGNINGCERT = 0x010
+$OCSP_SF_RESPONDER_ID_KEYHASH = 0x040
+$OCSP_SF_ALLOW_SIGNINGCERT_AUTOENROLLMENT = 0x200
+$ocspSigningFlags = $OCSP_SF_SILENT `
+    + $OCSP_SF_ALLOW_SIGNINGCERT_AUTORENEWAL `
+    + $OCSP_SF_FORCE_SIGNINGCERT_ISSUER_ISCA `
+    + $OCSP_SF_AUTODISCOVER_SIGNINGCERT `
+    + $OCSP_SF_RESPONDER_ID_KEYHASH `
+    + $OCSP_SF_ALLOW_SIGNINGCERT_AUTOENROLLMENT
+
+# Save The OCSP Configuration In An Object
+$ocspAdmin = New-Object -com "CertAdm.OCSPAdmin"
+$ocspAdmin.GetConfiguration($ocspServerFQDN, $True)
+
+# Create New Revocation Configuration
+$ocspConfig = $ocspAdmin.OCSPCAConfigurationCollection.CreateCAConfiguration($ocspName, $caCertRawData)
+$ocspConfig.CAConfig = $caConfigString
+$ocspConfig.SigningCertificateTemplate = $ocspCertTemplateName
+$ocspConfig.HashAlgorithm = "SHA1"
+$ocspConfig.SigningFlags = $ocspSigningFlags
+$ocspConfig.ProviderProperties = $OcspProperties.GetAllProperties()
+$ocspConfig.ProviderCLSID = "{4956d17f-88fd-4198-b287-1e6e65883b19}"
+$ocspConfig.ReminderDuration = 90
+
+# Commit The New Revocation Configuration
+$ocspAdmin.SetConfiguration($ocspServerFQDN, $True)
+
