@@ -22,7 +22,6 @@ Berksfile.lock
 .vagrant
 \#*#
 bin
-tmp
 
 ## Specific to RubyMotion:
 .dat*
