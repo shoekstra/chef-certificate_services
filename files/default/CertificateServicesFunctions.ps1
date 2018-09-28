@@ -135,3 +135,24 @@ Function Move-CADirectory {
     }
 }
 
+Function Move-ADCSClusterDisk($ClusterNode) {
+    $ClusterName = (Get-Cluster -ErrorAction SilentlyContinue).Name
+
+    if ($ClusterName -eq $Null) {
+        Write-Error "Exiting, this computer is not a member of a cluster..."
+    }
+
+    Write-Host "`nContinuing will stop the Active Directory Certificate Services cluster role and move the cluster disk to the new node."
+    Write-Host "`nPress Enter to continue or Ctrl-C to stop"
+    Read-Host
+
+    $ClusterGroup = (Get-ClusterResource -Name "Active Directory Certificate Services").OwnerGroup.Name
+    $ClusterResourceDisk = (Get-ClusterResource | ?{$_.OwnerGroup -eq $ClusterGroup -and $_.ResourceType -eq "Physical Disk"}).Name
+
+    Write-Host "Stopping Cluster Group ${ClusterGroup}...`n"
+    Stop-ClusterGroup $ClusterGroup | Out-Null
+    Write-Host "Moving Cluster Group ${ClusterGroup} to Cluster Node ${ClusterNode}...`n"
+    Move-ClusterGroup -Name $ClusterGroup -Node $ClusterNode | Out-Null
+    Write-Host "Starting Cluster Resource `"${ClusterResourceDisk}`" on ${ClusterNode}...`n"
+    Start-ClusterResource -Name $ClusterResourceDisk | Out-Null
+}
