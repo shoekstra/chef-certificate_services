@@ -21,16 +21,15 @@
 include CertificateServices::Helper
 include Windows::Helper
 
-actions :install, :uninstall
 default_action :install
 
-property :ca_name,          kind_of: String, required: true, name_property: true
+property :ca_name, String, name_property: true
 
-property :array_controller, kind_of: String, required: true
-property :array_members,    kind_of: String, required: false
-property :cdp_url_base,     kind_of: String, required: true
-property :domain_pass,      kind_of: String, required: true
-property :domain_user,      kind_of: String, required: true
+property :array_controller, String, required: true
+property :array_members, String, required: false
+property :cdp_url_base, String, required: true
+property :domain_pass, String, required: true
+property :domain_user, String, required: true
 
 action_class do
   def ocsp_vdir_installed?
@@ -94,7 +93,7 @@ action :install do
   end
 end
 
-action :uninstall do
+action :remove do
   ruby_block 'Uninstall ADCS Online Responder' do
     block { powershell_out!('Install-AdcsOnlineResponder -Force', powershell_out_options) }
     only_if { ocsp_vdir_installed? }
@@ -102,12 +101,12 @@ action :uninstall do
   end
 
   windows_feature 'ADCS-Online-Cert' do
-    action :uninstall
+    action :remove
     install_method :windows_feature_powershell
   end
 
   windows_feature 'RSAT-Online-Responder' do
-    action :uninstall
+    action :remove
     install_method :windows_feature_powershell
   end
 end

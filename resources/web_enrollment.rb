@@ -21,12 +21,12 @@
 include CertificateServices::Helper
 include Windows::Helper
 
-actions :install
 default_action :install
 
-property :ca_config,   kind_of: String, required: true, name_property: true
-property :domain_pass, kind_of: String, required: true
-property :domain_user, kind_of: String, required: true
+property :ca_config, String, name_property: true
+
+property :domain_pass, String, required: true
+property :domain_user, String, required: true
 
 action_class do
   def certsrv_vdir_installed?

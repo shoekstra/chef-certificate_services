@@ -20,10 +20,9 @@
 
 include CertificateServices::Helper
 
-actions :create
 default_action :create
 
-property :path, kind_of: String, required: true, name_property: true
+property :path, String, name_property: true
 
 action :create do
   #

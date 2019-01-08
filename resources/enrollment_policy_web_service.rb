@@ -21,14 +21,14 @@
 include CertificateServices::Helper
 include Windows::Helper
 
-actions :install
 default_action :install
 
-property :auth_type, kind_of: String, required: true, regex: /^(kerberos|username)$/i, name_property: true
-property :domain_pass, kind_of: String, required: true
-property :domain_user, kind_of: String, required: true
-property :friendly_name, kind_of: String, required: false
-property :key_based_renewal, kind_of: [TrueClass, FalseClass], required: false, default: false
+property :auth_type, String, regex: /^(kerberos|username)$/i, name_property: true
+
+property :domain_pass, String, required: true
+property :domain_user, String, required: true
+property :friendly_name, String, required: false
+property :key_based_renewal, [TrueClass, FalseClass], required: false, default: false
 
 action_class do
   def iis_vdir_installed?(iis_vdir)

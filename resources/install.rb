@@ -21,56 +21,55 @@
 include CertificateServices::Helper
 include Windows::Helper
 
-actions :create, :delete, :install, :uninstall
 default_action :create
 
 # CA type to install/configure
 
-property :type, kind_of: String, required: true, regex: /^(EnterpriseSubordinateCA|StandaloneRootCA)$/i, name_property: true
+property :type, String, regex: /^(EnterpriseSubordinateCA|StandaloneRootCA)$/i, name_property: true
 
 # CAPolicy.inf and Install-AdcsCertificationAuthority attributes
 
-property :allow_administrator_interaction, kind_of: [TrueClass, FalseClass],   required: false, default: false
-property :alternate_signature_algorithm,   kind_of: [TrueClass, FalseClass],   required: true, default: false
-property :aia_url,                         kind_of: [Array, String, NilClass], required: false, default: nil
-property :cdp_url,                         kind_of: [Array, String, NilClass], required: false, default: nil
-property :caconfig_dir,                    kind_of: String,                    required: true, default: 'C:\CAConfig'
-property :clock_skew_minutes,              kind_of: [Integer, String], required: false
-property :common_name,                     kind_of: String,                    required: false
-property :crl_delta_period,                kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_delta_period_units,          kind_of: [Integer, String], required: false
-property :crl_overlap_period,              kind_of: String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_overlap_units,               kind_of: [Integer, String], required: false
-property :crl_period,                      kind_of: String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_period_units,                kind_of: [Integer, String], required: false
-property :crypto_provider,                 kind_of: String,                    required: true, default: 'RSA#Microsoft Software Key Storage Provider'
-property :database_directory,              kind_of: String,                    required: true, default: 'C:\Windows\system32\CertLog'
-property :domain,                          kind_of: String,                    required: false, default: node['domain']
-property :domain_pass,                     kind_of: String,                    required: false
-property :domain_user,                     kind_of: String,                    required: false
-property :enable_auditing_eventlogs,       kind_of: [TrueClass, FalseClass],   required: true, default: true
-property :enable_key_counting,             kind_of: [TrueClass, FalseClass],   required: true, default: false
-property :enhanced_key_usage,              kind_of: [Array, String],           required: false, default: nil
-property :failover_clustering,             kind_of: [TrueClass, FalseClass],   required: true, default: false
-property :force_utf8,                      kind_of: [TrueClass, FalseClass],   required: true, default: false
-property :hash_algorithm,                  kind_of: String,                    required: true, default: 'SHA256'
-property :install_cert_file,               kind_of: String,                    required: false
-property :key_length,                      kind_of: [Integer, String], required: true, default: 4096
-property :load_default_templates,          kind_of: [TrueClass, FalseClass],   required: true, default: false
-property :manual_install,                  kind_of: [TrueClass, FalseClass],   required: false, default: false
-property :ocsp_url,                        kind_of: [String, NilClass],        required: false, default: nil
-property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass],   required: false, default: false
-property :overwrite_existing_database,     kind_of: [TrueClass, FalseClass],   required: false, default: false
-property :overwrite_existing_key,          kind_of: [TrueClass, FalseClass],   required: false, default: false
-property :policy,                          kind_of: [Array, Hash, NilClass],   required: false, default: nil
-property :renewal_key_length,              kind_of: [Integer, String], required: true
-property :renewal_validity_period,         kind_of: String, required: true, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :renewal_validity_period_units,   kind_of: [Integer, String], required: true
-property :root_crl_file,                   kind_of: String,                    required: false
-property :root_crt_file,                   kind_of: String,                    required: false
-property :validity_period,                 kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :validity_period_units,           kind_of: [Integer, String], required: false
-property :windows_domain,                  kind_of: String, required: false
+property :allow_administrator_interaction, [TrueClass, FalseClass],   required: false, default: false
+property :alternate_signature_algorithm, [TrueClass, FalseClass],   required: true, default: false
+property :aia_url, [Array, String, NilClass], required: false, default: nil
+property :cdp_url, [Array, String, NilClass], required: false, default: nil
+property :caconfig_dir, String,                    required: true, default: 'C:\CAConfig'
+property :clock_skew_minutes, [Integer, String], required: false
+property :common_name, String,                    required: false
+property :crl_delta_period, String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_delta_period_units, [Integer, String], required: false
+property :crl_overlap_period, String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_overlap_units, [Integer, String], required: false
+property :crl_period, String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_period_units, [Integer, String], required: false
+property :crypto_provider, String,                    required: true, default: 'RSA#Microsoft Software Key Storage Provider'
+property :database_directory, String,                    required: true, default: 'C:\Windows\system32\CertLog'
+property :domain, String,                    required: false, default: node['domain']
+property :domain_pass, String,                    required: false
+property :domain_user, String,                    required: false
+property :enable_auditing_eventlogs, [TrueClass, FalseClass],   required: true, default: true
+property :enable_key_counting, [TrueClass, FalseClass],   required: true, default: false
+property :enhanced_key_usage, [Array, String],           required: false, default: nil
+property :failover_clustering, [TrueClass, FalseClass],   required: true, default: false
+property :force_utf8, [TrueClass, FalseClass],   required: true, default: false
+property :hash_algorithm, String,                    required: true, default: 'SHA256'
+property :install_cert_file, String,                    required: false
+property :key_length, [Integer, String], required: true, default: 4096
+property :load_default_templates, [TrueClass, FalseClass],   required: true, default: false
+property :manual_install, [TrueClass, FalseClass],   required: false, default: false
+property :ocsp_url, [String, NilClass],        required: false, default: nil
+property :overwrite_existing_ca_in_ds, [TrueClass, FalseClass],   required: false, default: false
+property :overwrite_existing_database, [TrueClass, FalseClass],   required: false, default: false
+property :overwrite_existing_key, [TrueClass, FalseClass],   required: false, default: false
+property :policy, [Array, Hash, NilClass],   required: false, default: nil
+property :renewal_key_length, [Integer, String], required: true
+property :renewal_validity_period, String, required: true, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :renewal_validity_period_units, [Integer, String], required: true
+property :root_crl_file, String,                    required: false
+property :root_crt_file, String,                    required: false
+property :validity_period, String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :validity_period_units, [Integer, String], required: false
+property :windows_domain, String, required: false
 
 action_class do
   def bool_to_int(bool)

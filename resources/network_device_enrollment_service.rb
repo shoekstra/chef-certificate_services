@@ -21,30 +21,30 @@
 include CertificateServices::Helper
 include Windows::Helper
 
-actions :install
 default_action :install
 
-property :app_pool_identity,        kind_of: [TrueClass, FalseClass], required: false, default: true
-property :ca_config,                kind_of: String,                  required: true, name_property: true
-property :domain_pass,              kind_of: String,                  required: true
-property :domain_user,              kind_of: String,                  required: true
-property :encryption_key_length,    kind_of: [Integer, String], required: false, default: 2048
-property :encryption_provider_name, kind_of: String,                  required: false, default: 'Microsoft Strong Cryptographic Provider'
-property :encryption_template,      kind_of: String,                  required: true, default: 'IPSECIntermediateOffline'
-property :general_purpose_template, kind_of: String,                  required: true, default: 'IPSECIntermediateOffline'
-property :ra_city,                  kind_of: String,                  required: false
-property :ra_company,               kind_of: String,                  required: false
-property :ra_country,               kind_of: String,                  required: false
-property :ra_department,            kind_of: String,                  required: false
-property :ra_email,                 kind_of: String,                  required: false
-property :ra_name,                  kind_of: String,                  required: true, default: lazy { "#{node['hostname'].upcase}-MSCEP-RA" }
-property :ra_state,                 kind_of: String,                  required: false
-property :service_password,         kind_of: String,                  required: false
-property :service_user,             kind_of: String,                  required: false
-property :signature_template,       kind_of: String,                  required: true, default: 'IPSECIntermediateOffline'
-property :signing_key_length,       kind_of: [Integer, String], required: false, default: 2048
-property :signing_provider_name,    kind_of: String,                  required: false, default: 'Microsoft Strong Cryptographic Provider'
-property :use_single_password,      kind_of: [TrueClass, FalseClass], required: false, default: false
+property :ca_config, String, name_property: true
+
+property :app_pool_identity, [TrueClass, FalseClass], required: false, default: true
+property :domain_pass, String, required: true
+property :domain_user, String, required: true
+property :encryption_key_length, [Integer, String], required: false, default: 2048
+property :encryption_provider_name, String, required: false, default: 'Microsoft Strong Cryptographic Provider'
+property :encryption_template, String, required: true, default: 'IPSECIntermediateOffline'
+property :general_purpose_template, String, required: true, default: 'IPSECIntermediateOffline'
+property :ra_city, String, required: false
+property :ra_company, String, required: false
+property :ra_country, String, required: false
+property :ra_department, String, required: false
+property :ra_email, String, required: false
+property :ra_name, String, required: true, default: lazy { "#{node['hostname'].upcase}-MSCEP-RA" }
+property :ra_state, String, required: false
+property :service_password, String, required: false
+property :service_user, String, required: false
+property :signature_template, String, required: true, default: 'IPSECIntermediateOffline'
+property :signing_key_length, [Integer, String], required: false, default: 2048
+property :signing_provider_name, String, required: false, default: 'Microsoft Strong Cryptographic Provider'
+property :use_single_password, [TrueClass, FalseClass], required: false, default: false
 
 action_class do
   def iis_vdir_installed?(iis_vdir)
