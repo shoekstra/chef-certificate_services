@@ -1,12 +1,3 @@
-#
-# Cookbook Name:: certificate_services
-# Spec:: standalone_root_ca
-#
-# Copyright (C) 2016 Schuberg Philis
-#
-# Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
-#
-
 require 'spec_helper'
 
 describe 'certificate_services::standalone_root_ca' do

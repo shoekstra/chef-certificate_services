@@ -1,12 +1,3 @@
-#
-# Cookbook Name:: certificate_services
-# Spec:: _iis
-#
-# Copyright (C) 2016 Schuberg Philis
-#
-# Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
-#
-
 require 'spec_helper'
 
 shared_examples_for 'IIS should be installed/configured' do

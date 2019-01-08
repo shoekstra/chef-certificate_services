@@ -1,7 +1,7 @@
 name             'certificate_services'
 maintainer       'Stephen Hoekstra'
 maintainer_email 'shoekstra@schubergphilis.com'
-license          'All rights reserved'
+license          'Apache-2.0'
 description      'Cookbook to install and configure Active Directory Certificate Services'
 issues_url       'https://github.schubergphilis.com/shoekstra/chef-certificate_services/issues'
 source_url       'https://github.schubergphilis.com/shoekstra/chef-certificate_services'

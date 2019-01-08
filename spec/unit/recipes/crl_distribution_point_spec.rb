@@ -1,12 +1,3 @@
-#
-# Cookbook Name:: certificate_services
-# Spec:: crl_distribution_point
-#
-# Copyright (C) 2016 Schuberg Philis
-#
-# Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
-#
-
 require 'spec_helper'
 
 require_relative '_iis_spec.rb'

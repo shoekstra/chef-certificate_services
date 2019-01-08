@@ -1,12 +1,3 @@
-#
-# Cookbook Name:: certificate_services
-# Spec:: enrollment_policy_web_service
-#
-# Copyright (C) 2016 Schuberg Philis
-#
-# Created by: Stephen Hoekstra <shoekstra@schubergphilis.com>
-#
-
 require 'spec_helper'
 
 require_relative '_iis_spec.rb'
