@@ -1,1 +1,9 @@
-- Sun Jan 24 14:08:26 CET 2016: Uploaded with knife github plugin.
+# certificate_services CHANGELOG
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+
+0.1.0 (2018-01-08)
+
+Initial release.
