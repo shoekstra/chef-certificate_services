@@ -28,7 +28,7 @@ property :app_pool_identity,        kind_of: [TrueClass, FalseClass], required: 
 property :ca_config,                kind_of: String,                  required: true, name_property: true
 property :domain_pass,              kind_of: String,                  required: true
 property :domain_user,              kind_of: String,                  required: true
-property :encryption_key_length,    kind_of: [Fixnum, String],        required: false, default: 2048
+property :encryption_key_length,    kind_of: [Integer, String], required: false, default: 2048
 property :encryption_provider_name, kind_of: String,                  required: false, default: 'Microsoft Strong Cryptographic Provider'
 property :encryption_template,      kind_of: String,                  required: true, default: 'IPSECIntermediateOffline'
 property :general_purpose_template, kind_of: String,                  required: true, default: 'IPSECIntermediateOffline'
@@ -42,7 +42,7 @@ property :ra_state,                 kind_of: String,                  required: 
 property :service_password,         kind_of: String,                  required: false
 property :service_user,             kind_of: String,                  required: false
 property :signature_template,       kind_of: String,                  required: true, default: 'IPSECIntermediateOffline'
-property :signing_key_length,       kind_of: [Fixnum, String],        required: false, default: 2048
+property :signing_key_length,       kind_of: [Integer, String], required: false, default: 2048
 property :signing_provider_name,    kind_of: String,                  required: false, default: 'Microsoft Strong Cryptographic Provider'
 property :use_single_password,      kind_of: [TrueClass, FalseClass], required: false, default: false
 
@@ -73,7 +73,7 @@ action :install do
     "-EncryptionProviderName '#{new_resource.encryption_provider_name}'",
     "-SigningKeyLength #{new_resource.signing_key_length}",
     "-SigningProviderName '#{new_resource.signing_provider_name}'",
-    '-Force'
+    '-Force',
   ]
 
   install_cmd << '-ApplicationPoolIdentity' if new_resource.app_pool_identity && !new_resource.service_user && !new_resource.service_password
@@ -98,7 +98,7 @@ action :install do
     values [
       { name: 'EncryptionTemplate', type: :string, data: new_resource.encryption_template },
       { name: 'GeneralPurposeTemplate', type: :string, data: new_resource.general_purpose_template },
-      { name: 'SignatureTemplate', type: :string, data: new_resource.signature_template }
+      { name: 'SignatureTemplate', type: :string, data: new_resource.signature_template },
     ]
     action :create
     notifies :restart, 'windows_service[W3SVC]', :immediately
@@ -115,7 +115,7 @@ action :install do
   registry_key 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\HTTP\\Parameters' do
     values [
       { name: 'MaxFieldLength',  type: :dword, data: 65534 },
-      { name: 'MaxRequestBytes', type: :dword, data: 65534 }
+      { name: 'MaxRequestBytes', type: :dword, data: 65534 },
     ]
     action :create
     notifies :restart, 'windows_service[W3SVC]', :immediately

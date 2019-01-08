@@ -17,7 +17,7 @@ describe 'certificate_services::web_enrollment' do
     context 'when "domain_user" and "domain_pass" attributes are specified' do
       before(:each) do
         ENV.stub(:[])
-        ENV.stub(:[]).with('SystemRoot').and_return("C:\\")
+        ENV.stub(:[]).with('SystemRoot').and_return('C:\\')
 
         allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SOFTWARE\Microsoft\WebManagement\Server').and_return(false)
         allow_any_instance_of(Chef::Resource).to receive(:certsrv_vdir_installed?).and_return(false)
@@ -30,10 +30,10 @@ describe 'certificate_services::web_enrollment' do
         powershell_flags = '-NoLogo -NonInteractive -NoProfile -ExecutionPolicy Unrestricted -InputFormat None'
         shellout_options_runas = { user: 'USER', password: 'PASSWORD', domain: 'CONTOSO', environment: { 'LC_ALL' => 'en_US.UTF-8', 'LANGUAGE' => 'en_US.UTF-8', 'LANG' => 'en_US.UTF-8' } }
 
-        stub_command("(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq \"Allow\"").and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\" -Name Enabled).Value -eq \"True\"").and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\" -Name logonMethod) -eq \"ClearText\"").and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\" -Name Enabled).Value -eq $False").and_return(false)
+        stub_command('(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq "Allow"').and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv" -Name Enabled).Value -eq "True"').and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv" -Name logonMethod) -eq "ClearText"').and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv" -Name Enabled).Value -eq $False').and_return(false)
 
         shellout_adcs_web_enrollment = double(run_command: nil, error!: nil, stdout: '', stderr: double(empty?: true))
         Mixlib::ShellOut.stub(:new).with(
@@ -109,7 +109,7 @@ describe 'certificate_services::web_enrollment' do
     context 'when "domain_user" and "domain_pass" attributes are specified' do
       before(:each) do
         ENV.stub(:[])
-        ENV.stub(:[]).with('SystemRoot').and_return("C:\\")
+        ENV.stub(:[]).with('SystemRoot').and_return('C:\\')
 
         @file = Object.new
         allow(Chef::Util::FileEdit).to receive(:new).and_return(@file)
@@ -119,10 +119,10 @@ describe 'certificate_services::web_enrollment' do
         allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SOFTWARE\Microsoft\WebManagement\Server').and_return(true)
         allow_any_instance_of(Chef::Resource).to receive(:certsrv_vdir_installed?).and_return(true)
 
-        stub_command("(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq \"Allow\"").and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\" -Name Enabled).Value -eq \"True\"").and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\" -Name logonMethod) -eq \"ClearText\"").and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\" -Name Enabled).Value -eq $False").and_return(true)
+        stub_command('(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq "Allow"').and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv" -Name Enabled).Value -eq "True"').and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv" -Name logonMethod) -eq "ClearText"').and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv" -Name Enabled).Value -eq $False').and_return(true)
 
         powershell_flags = '-NoLogo -NonInteractive -NoProfile -ExecutionPolicy Unrestricted -InputFormat None'
         shellout_options_runas = { user: 'USER', password: 'PASSWORD', domain: 'CONTOSO', environment: { 'LC_ALL' => 'en_US.UTF-8', 'LANGUAGE' => 'en_US.UTF-8', 'LANG' => 'en_US.UTF-8' } }

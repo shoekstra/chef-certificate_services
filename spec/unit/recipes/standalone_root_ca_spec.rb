@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'certificate_services::standalone_root_ca' do
   let(:code_configure_aia) do
     [
-      'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+      'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
     ].join('; ')
   end
 
@@ -11,7 +11,7 @@ describe 'certificate_services::standalone_root_ca' do
     [
       'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }',
       'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force',
-      'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8.crl -PublishToServer -Force'
+      'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8.crl -PublishToServer -Force',
     ].join('; ')
   end
 
@@ -28,7 +28,7 @@ describe 'certificate_services::standalone_root_ca' do
       "-DatabaseDirectory '#{attributes[:database_directory]}'",
       "-HashAlgorithmName #{attributes[:hash_algorithm]}",
       "-KeyLength #{attributes[:key_length]}",
-      "-LogDirectory '#{attributes[:database_directory]}'"
+      "-LogDirectory '#{attributes[:database_directory]}'",
     ]
     command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
     command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
@@ -95,7 +95,7 @@ describe 'certificate_services::standalone_root_ca' do
       renewal_validity_period_units: 10,
       validity_period: 'years',
       validity_period_units: 5,
-      windows_domain: nil
+      windows_domain: nil,
     }
   end
 
@@ -128,7 +128,7 @@ describe 'certificate_services::standalone_root_ca' do
     let(:code_configure_aia) do
       [
         'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
-        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3.crt -AddToCertificateAia -Force'
+        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3.crt -AddToCertificateAia -Force',
       ].join('; ')
     end
 
@@ -157,7 +157,7 @@ describe 'certificate_services::standalone_root_ca' do
       [
         'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
         'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3.crt -AddToCertificateAia -Force',
-        'Add-CAAuthorityInformationAccess -Uri http://pki2.contoso.com/cdp/%3.crt -AddToCertificateAia -Force'
+        'Add-CAAuthorityInformationAccess -Uri http://pki2.contoso.com/cdp/%3.crt -AddToCertificateAia -Force',
       ].join('; ')
     end
 
@@ -187,7 +187,7 @@ describe 'certificate_services::standalone_root_ca' do
         'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }',
         'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force',
         'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8.crl -PublishToServer -Force',
-        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8.crl -AddToCertificateCDP -Force'
+        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8.crl -AddToCertificateCDP -Force',
       ].join('; ')
     end
 
@@ -218,7 +218,7 @@ describe 'certificate_services::standalone_root_ca' do
         'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force',
         'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8.crl -PublishToServer -Force',
         'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8.crl -AddToCertificateCDP -Force',
-        'Add-CACrlDistributionPoint -Uri http://pki2.contoso.com/cdp/%3%8.crl -AddToCertificateCDP -Force'
+        'Add-CACrlDistributionPoint -Uri http://pki2.contoso.com/cdp/%3%8.crl -AddToCertificateCDP -Force',
       ].join('; ')
     end
 
@@ -425,8 +425,8 @@ describe 'certificate_services::standalone_root_ca' do
           'LegalPolicy' => {
             'notice' => 'Legal Policy Statement',
             'oid'    => '1.2.3.4.1455.67.89.5',
-            'url'    => 'http://pki/pki/legal.txt'
-          }
+            'url'    => 'http://pki/pki/legal.txt',
+          },
         }
       )
     end
@@ -485,13 +485,13 @@ describe 'certificate_services::standalone_root_ca' do
           'InternalPolicy' => {
             'notice' => 'Internal Policy Statement',
             'oid'    => '1.2.3.4.1455.67.89.5',
-            'url'    => 'http://pki/pki/internal.txt'
+            'url'    => 'http://pki/pki/internal.txt',
           },
           'LegalPolicy' => {
             'notice' => 'Legal Policy Statement',
             'oid'    => '1.2.3.4.1455.67.89.5',
-            'url'    => 'http://pki/pki/legal.txt'
-          }
+            'url'    => 'http://pki/pki/legal.txt',
+          },
         }
       )
     end

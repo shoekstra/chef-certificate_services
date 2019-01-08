@@ -40,7 +40,7 @@ describe 'A Web Server' do
         describe command('icacls C:\\inetpub\\cdp') do
           [
             /CONTOSO\\Cert Publishers:.*(M)/,
-            /IIS APPPOOL\\DefaultAppPool:.*(RX)/
+            /IIS APPPOOL\\DefaultAppPool:.*(RX)/,
           ].each do |line|
             its(:stdout) { should contain(line) }
           end

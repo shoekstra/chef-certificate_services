@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'certificate_services::enterprise_subordinate_ca' do
   let(:code_configure_aia) do
     [
-      'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+      'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
     ].join('; ')
   end
 
@@ -11,7 +11,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     [
       'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }',
       'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
-      'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
+      'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
     ].join('; ')
   end
 
@@ -28,7 +28,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       "-DatabaseDirectory '#{attributes[:database_directory]}'",
       "-HashAlgorithmName #{attributes[:hash_algorithm]}",
       "-KeyLength #{attributes[:key_length]}",
-      "-LogDirectory '#{attributes[:database_directory]}'"
+      "-LogDirectory '#{attributes[:database_directory]}'",
     ]
     command << '-OverwriteExistingCAinDS' if attributes[:overwrite_existing_ca_in_ds]
     command << '-OverwriteExistingDatabase' if attributes[:overwrite_existing_database]
@@ -97,7 +97,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       root_crl_file: nil,
       root_crt_file: nil,
       validity_period: 'years',
-      validity_period_units: 2
+      validity_period_units: 2,
     }
   end
 
@@ -137,7 +137,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     let(:code_configure_aia) do
       [
         'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
-        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force'
+        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force',
       ].join('; ')
     end
 
@@ -172,7 +172,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
       [
         'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
         'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force',
-        'Add-CAAuthorityInformationAccess -Uri http://pki2.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force'
+        'Add-CAAuthorityInformationAccess -Uri http://pki2.contoso.com/cdp/%3%4.crt -AddToCertificateAia -Force',
       ].join('; ')
     end
 
@@ -254,7 +254,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }',
         'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
         'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
-        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force'
+        'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force',
       ].join('; ')
     end
 
@@ -291,7 +291,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
         'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
         'Add-CACrlDistributionPoint -Uri C:\\CAConfig\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force',
         'Add-CACrlDistributionPoint -Uri http://pki.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force',
-        'Add-CACrlDistributionPoint -Uri http://pki2.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force'
+        'Add-CACrlDistributionPoint -Uri http://pki2.contoso.com/cdp/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force',
       ].join('; ')
     end
 
@@ -535,7 +535,7 @@ describe 'certificate_services::enterprise_subordinate_ca' do
     let(:code_configure_aia) do
       [
         'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }',
-        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/ocsp -AddToCertificateOcsp -Force'
+        'Add-CAAuthorityInformationAccess -Uri http://pki.contoso.com/ocsp -AddToCertificateOcsp -Force',
       ].join('; ')
     end
 
@@ -601,8 +601,8 @@ describe 'certificate_services::enterprise_subordinate_ca' do
           'LegalPolicy' => {
             'notice' => 'Legal Policy Statement',
             'oid'    => '1.2.3.4.1455.67.89.5',
-            'url'    => 'http://pki/pki/legal.txt'
-          }
+            'url'    => 'http://pki/pki/legal.txt',
+          },
         }
       )
     end
@@ -667,13 +667,13 @@ describe 'certificate_services::enterprise_subordinate_ca' do
           'InternalPolicy' => {
             'notice' => 'Internal Policy Statement',
             'oid'    => '1.2.3.4.1455.67.89.5',
-            'url'    => 'http://pki/pki/internal.txt'
+            'url'    => 'http://pki/pki/internal.txt',
           },
           'LegalPolicy' => {
             'notice' => 'Legal Policy Statement',
             'oid'    => '1.2.3.4.1455.67.89.5',
-            'url'    => 'http://pki/pki/legal.txt'
-          }
+            'url'    => 'http://pki/pki/legal.txt',
+          },
         }
       )
     end

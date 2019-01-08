@@ -60,7 +60,7 @@ action :install do
   install_cmd = [
     'Install-AdcsEnrollmentPolicyWebService',
     "-AuthenticationType #{auth_type}",
-    '-Force'
+    '-Force',
   ]
 
   install_cmd << '-KeyBasedRenewal' if new_resource.key_based_renewal

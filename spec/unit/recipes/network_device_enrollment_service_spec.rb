@@ -35,9 +35,9 @@ describe 'certificate_services::network_device_enrollment_service' do
         allow_any_instance_of(Chef::Resource).to receive(:iis_vdir_installed?).and_return(false)
 
         stub_command('(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq "Allow"').and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq \"True\"").and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name logonMethod) -eq \"ClearText\"").and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq $False").and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq "True"').and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name logonMethod) -eq "ClearText"').and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq $False').and_return(false)
 
         shellout_adcs_network_device_enrollment_service = double(run_command: nil, error!: nil, stdout: '', stderr: double(empty?: true))
         install_cmd = [
@@ -49,7 +49,7 @@ describe 'certificate_services::network_device_enrollment_service' do
           '-SigningKeyLength 2048',
           '-SigningProviderName \'Microsoft Strong Cryptographic Provider\'',
           '-Force',
-          '-ApplicationPoolIdentity'
+          '-ApplicationPoolIdentity',
         ]
         Mixlib::ShellOut.stub(:new).with(
           "powershell.exe #{powershell_flags} -Command \"#{install_cmd.join(' ')}\"",
@@ -102,7 +102,7 @@ describe 'certificate_services::network_device_enrollment_service' do
             [
               { name: 'EncryptionTemplate',     type: :string, data: 'IPSECIntermediateOffline' },
               { name: 'GeneralPurposeTemplate', type: :string, data: 'IPSECIntermediateOffline' },
-              { name: 'SignatureTemplate',      type: :string, data: 'IPSECIntermediateOffline' }
+              { name: 'SignatureTemplate',      type: :string, data: 'IPSECIntermediateOffline' },
             ]
           )
         end
@@ -110,7 +110,7 @@ describe 'certificate_services::network_device_enrollment_service' do
         it 'should configure HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword registry keys' do
           expect(chef_run).to create_registry_key('HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword').with_values(
             [
-              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(0.to_s)) }
+              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(0.to_s)) },
             ]
           )
         end
@@ -119,7 +119,7 @@ describe 'certificate_services::network_device_enrollment_service' do
           expect(chef_run).to create_registry_key('HKLM\\SYSTEM\\CurrentControlSet\\Services\\HTTP\\Parameters').with_values(
             [
               { name: 'MaxFieldLength',  type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
-              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) }
+              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
             ]
           )
         end
@@ -141,9 +141,9 @@ describe 'certificate_services::network_device_enrollment_service' do
         allow_any_instance_of(Chef::Resource).to receive(:iis_vdir_installed?).with(anything).and_return(true)
 
         stub_command('(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq "Allow"').and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq \"True\"").and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name logonMethod) -eq \"ClearText\"").and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq $False").and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq "True"').and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name logonMethod) -eq "ClearText"').and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq $False').and_return(true)
       end
 
       it 'should converge successfully' do
@@ -190,7 +190,7 @@ describe 'certificate_services::network_device_enrollment_service' do
             [
               { name: 'EncryptionTemplate',     type: :string, data: 'IPSECIntermediateOffline' },
               { name: 'GeneralPurposeTemplate', type: :string, data: 'IPSECIntermediateOffline' },
-              { name: 'SignatureTemplate',      type: :string, data: 'IPSECIntermediateOffline' }
+              { name: 'SignatureTemplate',      type: :string, data: 'IPSECIntermediateOffline' },
             ]
           )
         end
@@ -198,7 +198,7 @@ describe 'certificate_services::network_device_enrollment_service' do
         it 'should configure HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword registry keys' do
           expect(chef_run).to create_registry_key('HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword').with_values(
             [
-              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(0.to_s)) }
+              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(0.to_s)) },
             ]
           )
         end
@@ -207,7 +207,7 @@ describe 'certificate_services::network_device_enrollment_service' do
           expect(chef_run).to create_registry_key('HKLM\\SYSTEM\\CurrentControlSet\\Services\\HTTP\\Parameters').with_values(
             [
               { name: 'MaxFieldLength',  type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
-              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) }
+              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
             ]
           )
         end
@@ -249,9 +249,9 @@ describe 'certificate_services::network_device_enrollment_service' do
         allow_any_instance_of(Chef::Resource).to receive(:iis_vdir_installed?).and_return(false)
 
         stub_command('(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq "Allow"').and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq \"True\"").and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name logonMethod) -eq \"ClearText\"").and_return(false)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq $False").and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq "True"').and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name logonMethod) -eq "ClearText"').and_return(false)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq $False').and_return(false)
 
         shellout_adcs_network_device_enrollment_service = double(run_command: nil, error!: nil, stdout: '', stderr: double(empty?: true))
         install_cmd = [
@@ -264,7 +264,7 @@ describe 'certificate_services::network_device_enrollment_service' do
           '-SigningProviderName \'Some CSP\'',
           '-Force',
           '-RACity \'CITY\' -RACompany \'COMP\' -RACountry \'CC\' -RADepartment \'DEPT\' -RAEmail \'MAIL\' -RAState \'STATE\'',
-          '-ServiceAccountName contoso.com\\SVC_USER -ServiceAccountPassword $(ConvertTo-SecureString \'SVC_PASSWORD\' -AsPlainText -Force)'
+          '-ServiceAccountName contoso.com\\SVC_USER -ServiceAccountPassword $(ConvertTo-SecureString \'SVC_PASSWORD\' -AsPlainText -Force)',
         ]
         Mixlib::ShellOut.stub(:new).with(
           "powershell.exe #{powershell_flags} -Command \"#{install_cmd.join(' ')}\"",
@@ -321,7 +321,7 @@ describe 'certificate_services::network_device_enrollment_service' do
             [
               { name: 'EncryptionTemplate',     type: :string, data: 'CustomTemplate' },
               { name: 'GeneralPurposeTemplate', type: :string, data: 'CustomTemplate' },
-              { name: 'SignatureTemplate',      type: :string, data: 'CustomTemplate' }
+              { name: 'SignatureTemplate',      type: :string, data: 'CustomTemplate' },
             ]
           )
         end
@@ -329,7 +329,7 @@ describe 'certificate_services::network_device_enrollment_service' do
         it 'should configure HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword registry keys' do
           expect(chef_run).to create_registry_key('HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword').with_values(
             [
-              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(1.to_s)) }
+              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(1.to_s)) },
             ]
           )
         end
@@ -338,7 +338,7 @@ describe 'certificate_services::network_device_enrollment_service' do
           expect(chef_run).to create_registry_key('HKLM\\SYSTEM\\CurrentControlSet\\Services\\HTTP\\Parameters').with_values(
             [
               { name: 'MaxFieldLength',  type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
-              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) }
+              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
             ]
           )
         end
@@ -377,9 +377,9 @@ describe 'certificate_services::network_device_enrollment_service' do
         allow_any_instance_of(Chef::Resource).to receive(:iis_vdir_installed?).with(anything).and_return(true)
 
         stub_command('(Get-WebConfiguration -Filter /system.WebServer/security/authentication/AnonymousAuthentication -PSPath machine/webroot/apphost).OverrideMode -eq "Allow"').and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq \"True\"").and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name logonMethod) -eq \"ClearText\"").and_return(true)
-        stub_command("(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath \"IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin\" -Name Enabled).Value -eq $False").and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq "True"').and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/basicAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name logonMethod) -eq "ClearText"').and_return(true)
+        stub_command('(Get-WebConfigurationProperty -Filter /system.WebServer/security/authentication/windowsAuthentication -PSPath "IIS:\\Sites\\Default Web Site\\CertSrv\\mscep_admin" -Name Enabled).Value -eq $False').and_return(true)
       end
 
       it 'should converge successfully' do
@@ -430,7 +430,7 @@ describe 'certificate_services::network_device_enrollment_service' do
             [
               { name: 'EncryptionTemplate',     type: :string, data: 'CustomTemplate' },
               { name: 'GeneralPurposeTemplate', type: :string, data: 'CustomTemplate' },
-              { name: 'SignatureTemplate',      type: :string, data: 'CustomTemplate' }
+              { name: 'SignatureTemplate',      type: :string, data: 'CustomTemplate' },
             ]
           )
         end
@@ -438,7 +438,7 @@ describe 'certificate_services::network_device_enrollment_service' do
         it 'should configure HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword registry keys' do
           expect(chef_run).to create_registry_key('HKLM\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP\\UseSinglePassword').with_values(
             [
-              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(1.to_s)) }
+              { name: 'UseSinglePassword', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(1.to_s)) },
             ]
           )
         end
@@ -447,7 +447,7 @@ describe 'certificate_services::network_device_enrollment_service' do
           expect(chef_run).to create_registry_key('HKLM\\SYSTEM\\CurrentControlSet\\Services\\HTTP\\Parameters').with_values(
             [
               { name: 'MaxFieldLength',  type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
-              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) }
+              { name: 'MaxRequestBytes', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(65534.to_s)) },
             ]
           )
         end

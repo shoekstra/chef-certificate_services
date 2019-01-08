@@ -60,7 +60,7 @@ describe 'A Standalone Root CA' do
           'C:\Windows\System32\CertSrv\CertEnroll\<CAName><CRLNameSuffix>.crl',
           'C:\CAConfig\<CAName><CRLNameSuffix>.crl',
           'http://pki.contoso.com/cdp/<CAName><CRLNameSuffix>.crl',
-          ''
+          '',
         ].join("\n")
       end
     end

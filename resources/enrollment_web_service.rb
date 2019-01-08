@@ -64,7 +64,7 @@ action :install do
   install_cmd = [
     'Install-AdcsEnrollmentWebService',
     "-AuthenticationType #{auth_type}",
-    '-Force'
+    '-Force',
   ]
 
   install_cmd << "-CAConfig '#{new_resource.ca_config}'" if new_resource.ca_config

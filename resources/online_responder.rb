@@ -69,7 +69,7 @@ action :install do
         "(chef_environment:#{node.chef_environment} AND recipes:certificate_services\\:\\:online_responder)",
         filter_result: { 'fqdn' => ['fqdn'] }
       ).each do |node|
-        array_members << node['fqdn'] unless node['fqdn'].match(/"#{new_resource.array_controller}"/i)
+        array_members << node['fqdn'] unless node['fqdn'] =~ /"#{new_resource.array_controller}"/i
       end
     end
   end

@@ -47,7 +47,7 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
-      policy: attributes[:policy]
+      policy: attributes[:policy],
     }
   end
 
@@ -55,7 +55,7 @@ shared_examples_for 'EnterpriseSubordinateCA is not installed and is not configu
     allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\SUBCA-Issuing-CA').and_return(
       [
         { name: 'CRLPublicationURLs', type: :multi_string, data: [] },
-        { name: 'CACertPublicationURLs', type: :multi_string, data: [] }
+        { name: 'CACertPublicationURLs', type: :multi_string, data: [] },
       ]
     )
 
@@ -176,7 +176,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
-      policy: attributes[:policy]
+      policy: attributes[:policy],
     }
   end
 
@@ -184,7 +184,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is not configured'
     allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\SUBCA-Issuing-CA').and_return(
       [
         { name: 'CRLPublicationURLs', type: :multi_string, data: [] },
-        { name: 'CACertPublicationURLs', type: :multi_string, data: [] }
+        { name: 'CACertPublicationURLs', type: :multi_string, data: [] },
       ]
     )
 
@@ -302,7 +302,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
-      policy: attributes[:policy]
+      policy: attributes[:policy],
     }
   end
 
@@ -310,7 +310,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
     allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\SUBCA-Issuing-CA').and_return(
       [
         { name: 'CRLPublicationURLs', type: :multi_string, data: [] },
-        { name: 'CACertPublicationURLs', type: :multi_string, data: [] }
+        { name: 'CACertPublicationURLs', type: :multi_string, data: [] },
       ]
     )
 
@@ -374,7 +374,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
         if attributes[:aia_url]
           allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\SUBCA-Issuing-CA').and_return(
             [
-              { name: 'CACertPublicationURLs', type: :multi_string, data: ['http://pki.contoso.com/cdp/%3%4.crt', 'http://pki2.contoso.com/cdp/%3%4.crt'] }
+              { name: 'CACertPublicationURLs', type: :multi_string, data: ['http://pki.contoso.com/cdp/%3%4.crt', 'http://pki2.contoso.com/cdp/%3%4.crt'] },
             ]
           )
         end
@@ -392,7 +392,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
         if attributes[:cdp_url]
           allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\SUBCA-Issuing-CA').and_return(
             [
-              { name: 'CRLPublicationURLs', type: :multi_string, data: ['65:C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl', '65:C:\\CAConfig\\%3%8%9.crl', 'http://pki.contoso.com/cdp/%3%8%9.crl', 'http://pki2.contoso.com/cdp/%3%8%9.crl'] }
+              { name: 'CRLPublicationURLs', type: :multi_string, data: ['65:C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl', '65:C:\\CAConfig\\%3%8%9.crl', 'http://pki.contoso.com/cdp/%3%8%9.crl', 'http://pki2.contoso.com/cdp/%3%8%9.crl'] },
             ]
           )
         end
@@ -412,7 +412,7 @@ shared_examples_for 'EnterpriseSubordinateCA is installed and is configured' do
     it 'should set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-Issuing-CA\CSP' do
       expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\contoso-SUBCA-Issuing-CA\CSP').with_values(
         [
-          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0'))
+          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0')),
         ]
       )
     end
@@ -469,7 +469,7 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
-      policy: attributes[:policy]
+      policy: attributes[:policy],
     }
   end
 
@@ -477,7 +477,7 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
     allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA').and_return(
       [
         { name: 'CRLPublicationURLs', type: :multi_string, data: [] },
-        { name: 'CACertPublicationURLs', type: :multi_string, data: [] }
+        { name: 'CACertPublicationURLs', type: :multi_string, data: [] },
       ]
     )
 
@@ -592,7 +592,7 @@ shared_examples_for 'StandaloneRootCA is not installed and is not configured' do
 
       expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA\CSP').with_values(
         [
-          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0'))
+          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0')),
         ]
       )
     end
@@ -646,7 +646,7 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
       renewal_key_length: attributes[:renewal_key_length],
       renewal_validity_period: attributes[:renewal_validity_period],
       renewal_validity_period_units: attributes[:renewal_validity_period_units],
-      policy: attributes[:policy]
+      policy: attributes[:policy],
     }
   end
 
@@ -654,7 +654,7 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
     allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA').and_return(
       [
         { name: 'CRLPublicationURLs', type: :multi_string, data: [] },
-        { name: 'CACertPublicationURLs', type: :multi_string, data: [] }
+        { name: 'CACertPublicationURLs', type: :multi_string, data: [] },
       ]
     )
 
@@ -728,7 +728,7 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
         if attributes[:aia_url]
           allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA').and_return(
             [
-              { name: 'CACertPublicationURLs', type: :multi_string, data: ['http://pki.contoso.com/cdp/%3.crt', 'http://pki2.contoso.com/cdp/%3.crt'] }
+              { name: 'CACertPublicationURLs', type: :multi_string, data: ['http://pki.contoso.com/cdp/%3.crt', 'http://pki2.contoso.com/cdp/%3.crt'] },
             ]
           )
         end
@@ -746,7 +746,7 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
         if attributes[:cdp_url]
           allow_any_instance_of(Chef::DSL::RegistryHelper).to receive(:registry_get_values).with('HKLM\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA').and_return(
             [
-              { name: 'CRLPublicationURLs', type: :multi_string, data: ['65:C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl', '65:C:\\CAConfig\\%3%8%9.crl', 'http://pki.contoso.com/cdp/%3%8.crl', 'http://pki2.contoso.com/cdp/%3%8.crl'] }
+              { name: 'CRLPublicationURLs', type: :multi_string, data: ['65:C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8%9.crl', '65:C:\\CAConfig\\%3%8%9.crl', 'http://pki.contoso.com/cdp/%3%8.crl', 'http://pki2.contoso.com/cdp/%3%8.crl'] },
             ]
           )
         end
@@ -767,7 +767,7 @@ shared_examples_for 'StandaloneRootCA is installed and is configured' do
     it 'should set registry keys in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA\CSP' do
       expect(chef_run).to create_registry_key('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\ROOTCA-CA\CSP').with_values(
         [
-          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0'))
+          name: 'AlternateSignatureAlgorithm', type: :dword, data: Chef::Digester.instance.generate_checksum(StringIO.new(attributes[:alternate_signature_algorithm] == true ? '1' : '0')),
         ]
       )
     end

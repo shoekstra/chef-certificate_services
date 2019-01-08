@@ -35,14 +35,14 @@ property :alternate_signature_algorithm,   kind_of: [TrueClass, FalseClass],   r
 property :aia_url,                         kind_of: [Array, String, NilClass], required: false, default: nil
 property :cdp_url,                         kind_of: [Array, String, NilClass], required: false, default: nil
 property :caconfig_dir,                    kind_of: String,                    required: true, default: 'C:\CAConfig'
-property :clock_skew_minutes,              kind_of: [Fixnum, String],          required: false
+property :clock_skew_minutes,              kind_of: [Integer, String], required: false
 property :common_name,                     kind_of: String,                    required: false
 property :crl_delta_period,                kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_delta_period_units,          kind_of: [Fixnum, String],          required: false
-property :crl_overlap_period,              kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_overlap_units,               kind_of: [Fixnum, String],          required: false
-property :crl_period,                      kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :crl_period_units,                kind_of: [Fixnum, String],          required: false
+property :crl_delta_period_units,          kind_of: [Integer, String], required: false
+property :crl_overlap_period,              kind_of: String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_overlap_units,               kind_of: [Integer, String], required: false
+property :crl_period,                      kind_of: String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :crl_period_units,                kind_of: [Integer, String], required: false
 property :crypto_provider,                 kind_of: String,                    required: true, default: 'RSA#Microsoft Software Key Storage Provider'
 property :database_directory,              kind_of: String,                    required: true, default: 'C:\Windows\system32\CertLog'
 property :domain,                          kind_of: String,                    required: false, default: node['domain']
@@ -55,7 +55,7 @@ property :failover_clustering,             kind_of: [TrueClass, FalseClass],   r
 property :force_utf8,                      kind_of: [TrueClass, FalseClass],   required: true, default: false
 property :hash_algorithm,                  kind_of: String,                    required: true, default: 'SHA256'
 property :install_cert_file,               kind_of: String,                    required: false
-property :key_length,                      kind_of: [Fixnum, String],          required: true, default: 4096
+property :key_length,                      kind_of: [Integer, String], required: true, default: 4096
 property :load_default_templates,          kind_of: [TrueClass, FalseClass],   required: true, default: false
 property :manual_install,                  kind_of: [TrueClass, FalseClass],   required: false, default: false
 property :ocsp_url,                        kind_of: [String, NilClass],        required: false, default: nil
@@ -63,14 +63,14 @@ property :overwrite_existing_ca_in_ds,     kind_of: [TrueClass, FalseClass],   r
 property :overwrite_existing_database,     kind_of: [TrueClass, FalseClass],   required: false, default: false
 property :overwrite_existing_key,          kind_of: [TrueClass, FalseClass],   required: false, default: false
 property :policy,                          kind_of: [Array, Hash, NilClass],   required: false, default: nil
-property :renewal_key_length,              kind_of: [Fixnum, String],          required: true
-property :renewal_validity_period,         kind_of: String,                    required: true, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :renewal_validity_period_units,   kind_of: [Fixnum, String],          required: true
+property :renewal_key_length,              kind_of: [Integer, String], required: true
+property :renewal_validity_period,         kind_of: String, required: true, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :renewal_validity_period_units,   kind_of: [Integer, String], required: true
 property :root_crl_file,                   kind_of: String,                    required: false
 property :root_crt_file,                   kind_of: String,                    required: false
 property :validity_period,                 kind_of: String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
-property :validity_period_units,           kind_of: [Fixnum, String],          required: false
-property :windows_domain,                  kind_of: String,                    required: false
+property :validity_period_units,           kind_of: [Integer, String], required: false
+property :windows_domain,                  kind_of: String, required: false
 
 action_class do
   def bool_to_int(bool)
@@ -192,7 +192,7 @@ action :create do
     "-DatabaseDirectory '#{new_resource.database_directory}'",
     "-HashAlgorithmName #{new_resource.hash_algorithm}",
     "-KeyLength #{new_resource.key_length}",
-    "-LogDirectory '#{new_resource.database_directory}'"
+    "-LogDirectory '#{new_resource.database_directory}'",
   ]
 
   config_ca_cmd << '-OverwriteExistingCAinDS' if new_resource.overwrite_existing_ca_in_ds
@@ -338,9 +338,15 @@ action :create do
   #
   # Start the Active Directory Certificate Services service and set startup_type to automatic unless nodes are clustered
   #
+  certsvc_action = if new_resource.type == 'StandaloneRootCA'
+                     [:enable, :start]
+                   else
+                     ca_configured? ? [:start] : :nothing
+                   end
+
   windows_service 'CertSvc' do
     startup_type new_resource.failover_clustering ? :manual : :automatic
-    action new_resource.type == 'StandaloneRootCA' ? [:enable, :start] : ca_configured? ? [:start] : :nothing
+    action certsvc_action
   end
 
   #

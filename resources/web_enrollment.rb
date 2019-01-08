@@ -55,7 +55,7 @@ action :install do
     block do
       apphost_config = Chef::Util::FileEdit.new("#{ENV['SystemRoot']}\\System32\\inetsrv\\config\\applicationHost.config")
       apphost_config.search_file_replace_line(
-        /<location path=\"Default Web Site\/CertSrv\"/,
+        %r{<location path="Default Web Site/CertSrv"},
         '    <location path="Default Web Site/CertSrv" overrideMode="Allow">'
       )
       apphost_config.write_file

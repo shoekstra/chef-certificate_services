@@ -12,7 +12,7 @@ describe 'certificate_services::crl_distribution_point' do
 
     before do
       stub_command('Get-SmbShare -Name CDP').and_return(false)
-      stub_search(:node, "(chef_environment:_default AND recipes:certificate_services\\:\\:enterprise_subordinate_ca)").and_return([{ hostname: 'subca1' }, { hostname: 'subca2' }])
+      stub_search(:node, '(chef_environment:_default AND recipes:certificate_services\\:\\:enterprise_subordinate_ca)').and_return([{ hostname: 'subca1' }, { hostname: 'subca2' }])
     end
 
     it 'should converge successfully' do
@@ -46,7 +46,7 @@ describe 'certificate_services::crl_distribution_point' do
           { permissions: :read_execute, principals: 'IIS APPPOOL\\DefaultAppPool' },
           { permissions: :modify,       principals: 'CONTOSO\\Cert Publishers' },
           { permissions: :modify,       principals: 'CONTOSO\\SUBCA1$' },
-          { permissions: :modify,       principals: 'CONTOSO\\SUBCA2$' }
+          { permissions: :modify,       principals: 'CONTOSO\\SUBCA2$' },
         ]
       )
 
@@ -72,7 +72,7 @@ describe 'certificate_services::crl_distribution_point' do
     it 'should create a /cps virtual dir' do
       expect(chef_run).to create_directory('C:\inetpub\cps').with_rights(
         [
-          { permissions: :read_execute, principals: 'IIS APPPOOL\\DefaultAppPool' }
+          { permissions: :read_execute, principals: 'IIS APPPOOL\\DefaultAppPool' },
         ]
       )
 
