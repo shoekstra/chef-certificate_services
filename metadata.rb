@@ -7,10 +7,10 @@ source_url       'https://github.com/shoekstra/chef-certificate_services'
 issues_url       'https://github.com/shoekstra/chef-certificate_services/issues'
 version          '0.1.0'
 
-chef_version '>= 12.21'
+chef_version '>= 14'
 
 supports 'windows', '>= 6.3'
 
 depends 'iis'
-depends 'pspki', '~> 0.1'
+depends 'pspki', '~> 0.2'
 depends 'windows'
