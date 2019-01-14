@@ -19,7 +19,6 @@
 #
 
 include CertificateServices::Helper
-include Windows::Helper
 
 default_action :create
 
@@ -29,45 +28,45 @@ property :type, String, regex: /^(EnterpriseSubordinateCA|StandaloneRootCA)$/i, 
 
 # CAPolicy.inf and Install-AdcsCertificationAuthority attributes
 
-property :allow_administrator_interaction, [TrueClass, FalseClass],   required: false, default: false
-property :alternate_signature_algorithm, [TrueClass, FalseClass],   required: true, default: false
-property :aia_url, [Array, String, NilClass], required: false, default: nil
-property :cdp_url, [Array, String, NilClass], required: false, default: nil
-property :caconfig_dir, String,                    required: true, default: 'C:\CAConfig'
+property :allow_administrator_interaction, [TrueClass, FalseClass], required: false, default: false
+property :alternate_signature_algorithm, [TrueClass, FalseClass], required: true, default: false
+property :aia_url, [Array, String], required: false
+property :cdp_url, [Array, String], required: false
+property :caconfig_dir, String, required: true, default: 'C:\CAConfig'
 property :clock_skew_minutes, [Integer, String], required: false
-property :common_name, String,                    required: false
-property :crl_delta_period, String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :common_name, String, required: false
+property :crl_delta_period, String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
 property :crl_delta_period_units, [Integer, String], required: false
 property :crl_overlap_period, String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
 property :crl_overlap_units, [Integer, String], required: false
 property :crl_period, String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
 property :crl_period_units, [Integer, String], required: false
-property :crypto_provider, String,                    required: true, default: 'RSA#Microsoft Software Key Storage Provider'
-property :database_directory, String,                    required: true, default: 'C:\Windows\system32\CertLog'
-property :domain, String,                    required: false, default: node['domain']
-property :domain_pass, String,                    required: false
-property :domain_user, String,                    required: false
-property :enable_auditing_eventlogs, [TrueClass, FalseClass],   required: true, default: true
-property :enable_key_counting, [TrueClass, FalseClass],   required: true, default: false
-property :enhanced_key_usage, [Array, String],           required: false, default: nil
-property :failover_clustering, [TrueClass, FalseClass],   required: true, default: false
-property :force_utf8, [TrueClass, FalseClass],   required: true, default: false
-property :hash_algorithm, String,                    required: true, default: 'SHA256'
-property :install_cert_file, String,                    required: false
+property :crypto_provider, String, required: true, default: 'RSA#Microsoft Software Key Storage Provider'
+property :database_directory, String, required: true, default: 'C:\Windows\system32\CertLog'
+property :domain, [String, nil], required: false, default: node['domain']
+property :domain_pass, String, required: false
+property :domain_user, String, required: false
+property :enable_auditing_eventlogs, [TrueClass, FalseClass], required: true, default: true
+property :enable_key_counting, [TrueClass, FalseClass], required: true, default: false
+property :enhanced_key_usage, [Array, String], required: false
+property :failover_clustering, [TrueClass, FalseClass], required: true, default: false
+property :force_utf8, [TrueClass, FalseClass], required: true, default: false
+property :hash_algorithm, String, required: true, default: 'SHA256'
+property :install_cert_file, String, required: false
 property :key_length, [Integer, String], required: true, default: 4096
-property :load_default_templates, [TrueClass, FalseClass],   required: true, default: false
-property :manual_install, [TrueClass, FalseClass],   required: false, default: false
-property :ocsp_url, [String, NilClass],        required: false, default: nil
-property :overwrite_existing_ca_in_ds, [TrueClass, FalseClass],   required: false, default: false
-property :overwrite_existing_database, [TrueClass, FalseClass],   required: false, default: false
-property :overwrite_existing_key, [TrueClass, FalseClass],   required: false, default: false
-property :policy, [Array, Hash, NilClass],   required: false, default: nil
+property :load_default_templates, [TrueClass, FalseClass], required: true, default: false
+property :manual_install, [TrueClass, FalseClass], required: false, default: false
+property :ocsp_url, String, required: false
+property :overwrite_existing_ca_in_ds, [TrueClass, FalseClass], required: false, default: false
+property :overwrite_existing_database, [TrueClass, FalseClass], required: false, default: false
+property :overwrite_existing_key, [TrueClass, FalseClass], required: false, default: false
+property :policy, [Array, Hash], required: false
 property :renewal_key_length, [Integer, String], required: true
 property :renewal_validity_period, String, required: true, regex: /^(Hours|Days|Weeks|Months|Years)$/i
 property :renewal_validity_period_units, [Integer, String], required: true
-property :root_crl_file, String,                    required: false
-property :root_crt_file, String,                    required: false
-property :validity_period, String,                    required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
+property :root_crl_file, String, required: false
+property :root_crt_file, String, required: false
+property :validity_period, String, required: false, regex: /^(Hours|Days|Weeks|Months|Years)$/i
 property :validity_period_units, [Integer, String], required: false
 property :windows_domain, String, required: false
 
@@ -76,32 +75,32 @@ action_class do
     bool == true ? 1 : 0
   end
 
-  def aia_update_required?(aia_urls = nil)
-    update_needed = false
-    return update_needed if aia_urls.nil?
+  def aia_update_required?(aia_urls)
+    raise "aia_update_required? expects an array" unless aia_urls.is_a? Array
+    return false if aia_urls.empty?
 
     ca_keys = registry_get_values("HKLM\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_common_name}")
     aia_key = ca_keys.select { |key| key[:name] == 'CACertPublicationURLs' }.first
     aia_key[:data].map! { |url| url.gsub(/^\d+\:/, '') }
     aia_urls.each do |aia_url|
-      update_needed = true unless aia_key[:data].include?(aia_url)
+      return true unless aia_key[:data].include?(aia_url)
     end
 
-    update_needed
+    false
   end
 
-  def cdp_update_required?(cdp_urls = nil)
-    update_needed = false
-    return update_needed if cdp_urls.nil?
+  def cdp_update_required?(cdp_urls)
+    raise "cdp_update_required? expects an array" unless cdp_urls.is_a? Array
+    return false if cdp_urls.empty?
 
     ca_keys = registry_get_values("HKLM\\SYSTEM\\CurrentControlSet\\Services\\CertSvc\\Configuration\\#{ca_common_name}")
     cdp_key = ca_keys.select { |key| key[:name] == 'CRLPublicationURLs' }.first
     cdp_key[:data].map! { |url| url.gsub(/^\d+\:/, '') }
     cdp_urls.each do |cdp_url|
-      update_needed = true unless cdp_key[:data].include?(cdp_url)
+      return true unless cdp_key[:data].include?(cdp_url)
     end
 
-    update_needed
+    false
   end
 
   def ca_common_name
@@ -215,7 +214,7 @@ action :create do
     root_files << new_resource.root_crt_file if new_resource.root_crt_file
 
     root_files.each do |root_file|
-      win_friendly_root_file = win_friendly_path(::File.join(new_resource.caconfig_dir, root_file))
+      win_friendly_root_file = Chef::Util::PathHelper.cleanpath(::File.join(new_resource.caconfig_dir, root_file))
 
       file win_friendly_root_file do
         action :nothing
@@ -232,7 +231,7 @@ action :create do
     # Install subordinate certificate
     #
     if new_resource.install_cert_file && ::File.exist?(::File.join(new_resource.caconfig_dir, new_resource.install_cert_file))
-      win_friendly_install_cert_file = win_friendly_path(::File.join(new_resource.caconfig_dir, new_resource.install_cert_file))
+      win_friendly_install_cert_file = Chef::Util::PathHelper.cleanpath(::File.join(new_resource.caconfig_dir, new_resource.install_cert_file))
 
       file win_friendly_install_cert_file do
         action :nothing
@@ -250,14 +249,12 @@ action :create do
   #
   # Configure AIA and CDP locations
   #
-  aia_urls = new_resource.aia_url
-  aia_urls = Array(aia_url) unless aia_urls.nil?
-
   aia_code = []
   aia_code << 'Get-CAAuthorityInformationAccess | %{ Remove-CAAuthorityInformationAccess $_.uri -Force }'
+  aia_urls = [new_resource.aia_url].flatten.compact
   aia_urls.each do |aia_url|
     aia_code << "Add-CAAuthorityInformationAccess -Uri #{aia_url} -AddToCertificateAia -Force"
-  end unless aia_urls.nil?
+  end
   aia_code << "Add-CAAuthorityInformationAccess -Uri #{new_resource.ocsp_url} -AddToCertificateOcsp -Force" unless new_resource.ocsp_url.nil?
 
   powershell_script 'Configure AIA' do
@@ -269,24 +266,21 @@ action :create do
 
   cdp_code = []
   cdp_code << 'Get-CACrlDistributionPoint | %{ Remove-CACrlDistributionPoint $_.uri -Force }'
-
-  cdp_urls = new_resource.cdp_url
-  cdp_urls = Array(cdp_url) unless cdp_urls.nil?
-
+  cdp_urls = [new_resource.cdp_url].flatten.compact
   if new_resource.type == 'StandaloneRootCA'
     cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\\CertEnroll\\%3%8.crl -PublishToServer -Force'
     cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8.crl -PublishToServer -Force"
 
     cdp_urls.each do |cdp_url|
       cdp_code << "Add-CACrlDistributionPoint -Uri #{cdp_url} -AddToCertificateCDP -Force"
-    end unless cdp_urls.nil?
+    end
   elsif new_resource.type == 'EnterpriseSubordinateCA'
     cdp_code << 'Add-CACrlDistributionPoint -Uri C:\\Windows\\System32\\CertSrv\CertEnroll\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force'
     cdp_code << "Add-CACrlDistributionPoint -Uri #{new_resource.caconfig_dir}\\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force"
 
     cdp_urls.each do |cdp_url|
       cdp_code << "Add-CACrlDistributionPoint -Uri #{cdp_url} -AddToCertificateCDP -AddToFreshestCrl -Force"
-    end unless cdp_urls.nil?
+    end
   end
 
   powershell_script 'Configure CDP' do
