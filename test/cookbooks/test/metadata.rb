@@ -1,4 +1,4 @@
-name 'certificate_services_test'
+name 'test'
 version '0.0.1'
 
 depends 'windows'

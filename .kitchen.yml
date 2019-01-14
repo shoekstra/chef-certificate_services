@@ -65,8 +65,8 @@ suites:
       network:
       - ["private_network", {ip: "192.168.33.10"}]
     run_list:
-      - recipe[certificate_services_test::default]
-      - recipe[certificate_services_test::domain_create]
+      - recipe[test::default]
+      - recipe[test::domain_create]
 
   - name: StandaloneRootCA
     driver:
@@ -74,7 +74,7 @@ suites:
       network:
       - ["private_network", {ip: "192.168.33.11"}]
     run_list:
-      - recipe[certificate_services_test::default]
+      - recipe[test::default]
       - recipe[certificate_services::standalone_root_ca]
     attributes:
       <%= attributes %>
@@ -85,8 +85,8 @@ suites:
       network:
       - ["private_network", {ip: "192.168.33.12"}]
     run_list:
-      - recipe[certificate_services_test::default]
-      - recipe[certificate_services_test::domain_join]
+      - recipe[test::default]
+      - recipe[test::domain_join]
       - recipe[certificate_services::enterprise_subordinate_ca]
       - recipe[crl_copy::default]
     attributes:
@@ -98,8 +98,8 @@ suites:
       network:
       - ["private_network", {ip: "192.168.33.13"}]
     run_list:
-      - recipe[certificate_services_test::default]
-      - recipe[certificate_services_test::domain_join]
+      - recipe[test::default]
+      - recipe[test::domain_join]
       - recipe[certificate_services::crl_distribution_point]
     attributes:
       <%= attributes %>

@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: certificate_services_test
+# Cookbook Name:: test
 # Recipe:: default
 #
 # Copyright (C) 2016 Schuberg Philis
